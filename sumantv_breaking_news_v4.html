@@ -186,6 +186,10 @@
   <video id="bg-video" autoplay playsinline></video>
   <img id="bg-image" src="" alt="">
   <div class="bg-overlay"></div>
+  <div id="play-overlay" onclick="startPlay()" style="display:none;position:absolute;inset:0;z-index:5;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);cursor:pointer;">
+    <div style="background:rgba(232,0,29,0.9);border-radius:50%;width:80px;height:80px;display:flex;align-items:center;justify-content:center;font-size:30px;">▶</div>
+    <div style="position:absolute;bottom:80px;color:rgba(255,255,255,0.7);font-size:14px;font-family:Barlow,sans-serif;">Click to play</div>
+  </div>
   <img class="broadcast-logo" src="./SumanTV_News_Logo__1_.png" alt="SumanTV">
   <div class="live-badge"><span class="live-dot"></span>LIVE</div>
   <div class="item-counter" id="item-counter"></div>
@@ -337,14 +341,37 @@
     } else {
       img.style.display = 'none'; img.src = '';
       vid.style.display = 'block'; vid.muted = true;
-      vid.src = item.url; vid.loop = false; vid.load();
-      vid.play().then(() => { vid.muted = false; }).catch(() => {});
+      // Handle Google Drive URLs - convert to streaming format
+      let src = item.url;
+      if (src.includes('drive.google.com/uc?')) {
+        // Use Google Drive preview embed for CORS compliance
+        const idMatch = src.match(/id=([^&]+)/);
+        if (idMatch) {
+          // Try direct first, fall back to embed
+          vid.src = src;
+        }
+      } else {
+        vid.src = src;
+      }
+      vid.loop = false; vid.load();
+      vid.play().then(() => { vid.muted = false; }).catch(() => {
+        // If direct play fails, show a clickable overlay to start
+        document.getElementById('play-overlay').style.display = 'flex';
+      });
       vid.onended = () => {
         currentIdx = (currentIdx + 1) % playlist.length;
         updateDots(currentIdx); loadItem(currentIdx);
       };
     }
     updateDots(idx);
+  }
+
+  function startPlay() {
+    const overlay = document.getElementById('play-overlay');
+    overlay.style.display = 'none';
+    const vid = document.getElementById('bg-video');
+    vid.muted = false;
+    vid.play().catch(() => {});
   }
 
   function goBack() {
@@ -418,7 +445,29 @@
     if(e.key==='Escape'&&document.getElementById('save-modal').classList.contains('show')) closeSaveModal();
   });
 
-  addItem();
+  // Pre-loaded playlist
+  (function() {
+    const preloaded = [
+      { url: "https://drive.google.com/uc?export=download&id=1YPAutL5F3nQQc_R8SsrW0f7Yzlhk8dey", hl: "భారత వర్ష ట్రైలర్ విడుదల | Bharata Varsha Trailer | SumanTV", tk: "భారత వర్ష ట్రైలర్ విడుదల | Bharata Varsha Trailer | SumanTV", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1cQEu1uf0Jsx-QuRO6i0Ng7uoeQvt5zTo", hl: "దృశ్యం 3 ట్రైలర్ | Drishyam 3 Official Trailer | SumanTV", tk: "దృశ్యం 3 ట్రైలర్ | Drishyam 3 Official Trailer | SumanTV", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1cNpFfzlPwjkeuBCRFKJ__0NPfgMpU4sI", hl: "Epic Movie Trailer | SumanTV Entertainment", tk: "Epic Movie Trailer | SumanTV Entertainment", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1OYj0OZ3eTsMBNqWYEVmEY6XeJ5TT87TN", hl: "గోదారి గట్టుపైన ట్రైలర్ | Godari Gattupaina | SumanTV", tk: "గోదారి గట్టుపైన ట్రైలర్ | Godari Gattupaina | SumanTV", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1fXdJdu1I7IU9Hs1fYuKhaWktajmCkfgN", hl: "JetLee Official Trailer | SumanTV Entertainment", tk: "JetLee Official Trailer | SumanTV Entertainment", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1okn7iP2wVx5CAWRFq4MGFfbI2w7A1pDg", hl: "కారా ట్రైలర్ | Kara Movie Trailer | SumanTV", tk: "కారా ట్రైలర్ | Kara Movie Trailer | SumanTV", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1j6Mk1UcPWZt71jWPdBVnyHyODzRF50h1", hl: "మా ఇంటి బంగారం ట్రైలర్ | Maa Inti Bangaram | SumanTV", tk: "మా ఇంటి బంగారం ట్రైలర్ | Maa Inti Bangaram | SumanTV", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1THvur65kJbmO-tde92e289HH0jB4fSUo", hl: "Razor Official Trailer | SumanTV Entertainment", tk: "Razor Official Trailer | SumanTV Entertainment", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1IN9rru6B5_Ct1G68eXTuKNqdCEuQ3mND", hl: "సతీ లీలావతి ట్రైలర్ | Sathi Leelavathi | SumanTV", tk: "సతీ లీలావతి ట్రైలర్ | Sathi Leelavathi | SumanTV", mt: "video" },
+      { url: "https://drive.google.com/uc?export=download&id=1dRi9lqZwg58NpxW8-2JlQNOTqdax-v2v", hl: "విశ్వనాథ్ అండ్ సన్స్ ట్రైలర్ | Vishwanath and Sons | SumanTV", tk: "విశ్వనాథ్ అండ్ సన్స్ ట్రైలర్ | Vishwanath and Sons | SumanTV", mt: "video" },
+    ];
+    preloaded.forEach(item => {
+      addItem();
+      document.getElementById('video-' + itemCount).value = item.url;
+      document.getElementById('headline-' + itemCount).value = item.hl;
+      document.getElementById('ticker-' + itemCount).value = item.tk;
+      updatePreview(itemCount);
+    });
+    document.getElementById('location-input').value = 'Hyderabad';
+  })();
 </script>
 </body>
 </html>

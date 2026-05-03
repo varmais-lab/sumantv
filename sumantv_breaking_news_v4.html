@@ -90,9 +90,7 @@
   #bg-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; display: none; }
   .bg-overlay { position: absolute; inset: 0; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.82) 100%); }
   .ui-layer { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; }
-  .broadcast-logo { position: absolute; top: 18px; left: 24px; z-index: 10; height: 44px; width: auto; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.7)); }
-  .live-badge { position: absolute; top: 24px; left: 96px; z-index: 10; display: flex; align-items: center; gap: 5px; background: var(--red); border-radius: 4px; padding: 3px 10px; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: #fff; }
-  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: blink 1s step-start infinite; }
+  .broadcast-logo { position: absolute; top: 12px; left: 20px; z-index: 10; height: 80px; width: auto; filter: drop-shadow(0 2px 16px rgba(0,0,0,0.8)); }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
   .item-counter { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 6px; }
   .counter-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background 0.3s; }
@@ -191,7 +189,6 @@
     <div style="position:absolute;bottom:80px;color:rgba(255,255,255,0.7);font-size:14px;font-family:Barlow,sans-serif;">Click to play</div>
   </div>
   <img class="broadcast-logo" src="./SumanTV_News_Logo__1_.png" alt="SumanTV">
-  <div class="live-badge"><span class="live-dot"></span>LIVE</div>
   <div class="item-counter" id="item-counter"></div>
   <div class="ui-layer">
     <div class="top-bar">

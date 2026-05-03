@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SumanTV Data Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #E8001D; --gold: #F5A800; --green: #22c55e;
+    --bg: #0a0a0f; --surface: #111827; --surface2: #1f2937;
+    --border: #2d3748; --text: #f0f2f7; --muted: #6b7280;
+  }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── Header ── */
+  .header {
+    background: #0d1117; border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center;
+    justify-content: space-between; position: sticky; top: 0; z-index: 50;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-logo { height: 36px; width: auto; }
+  .header-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: #fff; }
+  .header-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+
+  /* ── Layout ── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* ── Panel ── */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
+  .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .panel-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .panel-title span { color: var(--gold); }
+  .panel-body { padding: 20px; }
+
+  /* ── Field ── */
+  .field-group { margin-bottom: 14px; }
+  .field-label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .field-input {
+    width: 100%; background: #0d1117; border: 1px solid var(--border);
+    border-radius: 8px; color: #fff; font-family: 'Barlow', sans-serif;
+    font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.2s;
+  }
+  .field-input:focus { border-color: var(--gold); }
+  .field-input::placeholder { color: #374151; }
+  .field-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+  .field-hint strong { color: #fff; }
+  .field-hint code { background: #1f2937; border-radius: 3px; padding: 1px 5px; font-size: 11px; color: #93c5fd; }
+
+  /* ── Buttons ── */
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--gold); color: #000; }
+  .btn-primary:hover { background: #d97706; }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #c0001a; }
+  .btn-green { background: #052e16; color: var(--green); border: 1px solid #166534; }
+  .btn-green:hover { background: #064e24; }
+  .btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: #374151; color: #fff; }
+  .btn-sm { padding: 5px 12px; font-size: 11px; border-radius: 5px; }
+
+  /* ── Sheet structure guide ── */
+  .sheet-guide { background: #0d1117; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .sheet-guide-title { padding: 8px 14px; background: var(--surface2); font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+  .sheet-table { width: 100%; border-collapse: collapse; }
+  .sheet-table th, .sheet-table td { padding: 8px 12px; font-size: 12px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: left; }
+  .sheet-table th { background: var(--surface2); color: var(--gold); font-weight: 700; letter-spacing: 0.5px; }
+  .sheet-table td { color: #9ca3af; }
+  .sheet-table td.col-a { color: var(--red); font-weight: 600; }
+  .sheet-table tr:last-child td { border-bottom: none; }
+  .sheet-table th:last-child, .sheet-table td:last-child { border-right: none; }
+
+  /* ── Test result ── */
+  .test-result { padding: 12px 16px; border-radius: 8px; font-size: 13px; display: none; line-height: 1.7; margin-top: 10px; }
+  .test-result.ok { background: #052e16; border: 1px solid #166534; color: #4ade80; display: block; }
+  .test-result.err { background: #2d1a1a; border: 1px solid #7f1d1d; color: #f87171; display: block; }
+  .test-result.loading { background: #1c1208; border: 1px solid #854d0e; color: #fbbf24; display: block; }
+
+  /* ── Preview table ── */
+  .preview-wrap { overflow-x: auto; margin-top: 4px; }
+  .preview-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  .preview-table th { background: var(--surface2); color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .preview-table td { padding: 10px 12px; font-size: 13px; color: #d1d5db; border-bottom: 1px solid #1f2937; vertical-align: top; }
+  .preview-table tr:last-child td { border-bottom: none; }
+  .preview-table tr:hover td { background: #141e2e; }
+  .preview-table td.td-num { color: var(--muted); font-size: 11px; font-weight: 700; width: 40px; }
+  .preview-table td.td-label { color: var(--red); font-weight: 600; font-size: 12px; white-space: nowrap; }
+  .preview-table td.td-headline { font-family: 'Noto Sans Telugu', 'Barlow', sans-serif; font-weight: 600; color: #fff; max-width: 240px; }
+  .preview-table td.td-ticker { font-family: 'Noto Sans Telugu', 'Barlow', sans-serif; font-size: 12px; max-width: 200px; color: #9ca3af; }
+  .preview-table td.td-loc { font-size: 12px; color: var(--gold); white-space: nowrap; }
+  .preview-table td.td-video { font-size: 11px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .preview-table td.td-thumb img { width: 60px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
+  .preview-table td.td-thumb .no-thumb { width: 60px; height: 36px; background: #1f2937; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--muted); }
+
+  /* Row actions */
+  .row-actions { display: flex; gap: 4px; }
+  .btn-row-del { background: #2d1a1a; color: #f87171; border: 1px solid #7f1d1d; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; }
+  .btn-row-del:hover { background: #7f1d1d; }
+
+  /* ── Push section ── */
+  .push-bar {
+    background: linear-gradient(135deg, #1a0505 0%, #2d0a0a 100%);
+    border: 1px solid #7f1d1d; border-radius: 12px;
+    padding: 20px; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .push-info { flex: 1; min-width: 0; }
+  .push-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: #fff; }
+  .push-desc { font-size: 12px; color: #9ca3af; margin-top: 4px; line-height: 1.5; }
+  .push-count { background: var(--red); color: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; padding: 8px 20px; border-radius: 8px; flex-shrink: 0; }
+
+  .push-btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-push-broadcast {
+    padding: 12px 24px; background: var(--red); color: #fff;
+    border: none; border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+    letter-spacing: 3px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn-push-broadcast:hover { background: #c0001a; transform: scale(1.02); }
+  .btn-push-broadcast:active { transform: scale(0.98); }
+  .pulse { width: 10px; height: 10px; border-radius: 50%; background: #fff; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.65)} }
+
+  .btn-open-broadcast { padding: 12px 20px; background: #0d1b2a; color: #60a5fa; border: 1px solid #1e40af; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+  .btn-open-broadcast:hover { background: #1e3a5f; }
+
+  /* ── Auto-sync toggle ── */
+  .autosync-row { display: flex; align-items: center; justify-content: space-between; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-top: 14px; }
+  .autosync-info { font-size: 13px; color: var(--text); }
+  .autosync-info small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: #374151; border-radius: 24px; cursor: pointer; transition: background 0.2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+  .toggle-switch input:checked + .toggle-slider { background: var(--red); }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+  /* ── Status bar ── */
+  .status-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); padding: 10px 0 0; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .status-dot.ok { background: var(--green); }
+  .status-dot.loading { background: var(--gold); animation: blink 0.6s step-start infinite; }
+  .status-dot.err { background: var(--red); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* ── Sheet help steps ── */
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step { display: flex; align-items: flex-start; gap: 12px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: #d1d5db; line-height: 1.6; }
+  .step-text strong { color: #fff; }
+  .step-text code { background: #1f2937; border-radius: 3px; padding: 1px 6px; font-size: 12px; color: #93c5fd; }
+
+  /* Saved sheets */
+  .saved-sheet-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .saved-sheet-item { display: flex; align-items: center; gap: 10px; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+  .ss-info { flex: 1; min-width: 0; }
+  .ss-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .ss-url { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+  .ss-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-ss-load { background: #1e3a5f; color: #60a5fa; border: 1px solid #1e40af; border-radius: 5px; padding: 4px 12px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .btn-ss-del { background: #2d1a1a; color: #f87171; border: 1px solid #7f1d1d; border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <img class="header-logo" src="./SumanTV_News_Logo__1_.png" alt="SumanTV" onerror="this.style.display='none'">
+    <div>
+      <div class="header-title">Data Manager</div>
+      <div class="header-sub">Google Sheets → Broadcast Pipeline</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-bar">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Not connected</span>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ══ STEP 1: Sheet Structure ══ -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📋 <span>Step 1</span> — Sheet Structure</div>
+    </div>
+    <div class="panel-body">
+      <p style="font-size:13px;color:#9ca3af;margin-bottom:14px;">Your Google Sheet must have these exact column headers in Row 1:</p>
+      <div class="sheet-guide">
+        <div class="sheet-guide-title">Required Column Structure</div>
+        <table class="sheet-table">
+          <tr>
+            <th>A — Label</th>
+            <th>B — Headline</th>
+            <th>C — Ticker</th>
+            <th>D — Location</th>
+            <th>E — Video URL</th>
+            <th>F — Thumbnail</th>
+          </tr>
+          <tr>
+            <td class="col-a">BREAKING NEWS</td>
+            <td>Your headline here...</td>
+            <td>Highlight 1 | Highlight 2</td>
+            <td>Hyderabad</td>
+            <td>https://res.cloudinary.com/.../video.mp4</td>
+            <td>https://res.cloudinary.com/.../thumb.jpg</td>
+          </tr>
+          <tr>
+            <td class="col-a">EXCLUSIVE</td>
+            <td>Second headline...</td>
+            <td>Item 1 | Item 2 | Item 3</td>
+            <td>Vijayawada</td>
+            <td>https://res.cloudinary.com/.../video2.mp4</td>
+            <td>(optional)</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Open Google Sheets → Fill data from Row 2 onwards (Row 1 = headers)</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Click <strong>File → Share → Publish to web</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Select <strong>Sheet1</strong> → Format: <strong>Comma-separated values (.csv)</strong> → Click Publish</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Copy the URL — it looks like: <code>https://docs.google.com/spreadsheets/d/e/XXXX/pub?gid=0&single=true&output=csv</code></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Label options for Column A: <strong style="color:var(--red)">BREAKING NEWS</strong> · <strong style="color:#7c3aed">EXCLUSIVE</strong> · <strong style="color:#1d4ed8">JUST IN</strong> · <strong style="color:#b45309">DEVELOPING</strong> · <strong style="color:#166534">LIVE UPDATE</strong></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: Connect Sheet ══ -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">🔌 <span>Step 2</span> — Connect Google Sheet</div>
+    </div>
+    <div class="panel-body">
+
+      <div class="field-group">
+        <label class="field-label">Sheet Name (for reference)</label>
+        <input class="field-input" type="text" id="sheet-name" placeholder="e.g. SumanTV Morning Bulletin"/>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Google Sheet Published CSV URL</label>
+        <input class="field-input" type="text" id="sheet-url" placeholder="https://docs.google.com/spreadsheets/d/e/XXXX/pub?gid=0&single=true&output=csv"/>
+        <div class="field-hint">
+          File → Share → Publish to web → Sheet1 → CSV → Copy URL
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="testAndLoad()">🔌 Test & Load Data</button>
+        <button class="btn btn-ghost" onclick="saveSheet()">💾 Save Sheet</button>
+      </div>
+
+      <div class="test-result" id="test-result"></div>
+
+      <!-- Auto-sync toggle -->
+      <div class="autosync-row">
+        <div class="autosync-info">
+          Auto-sync every 30 seconds
+          <small>Automatically reload data from sheet while broadcast is open</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="autosync-toggle" onchange="toggleAutoSync()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Saved sheets -->
+      <div id="saved-sheets-wrap" style="display:none; margin-top:16px;">
+        <div class="field-label" style="margin-bottom:8px;">Saved Sheets</div>
+        <div class="saved-sheet-list" id="saved-sheet-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: Preview ══ -->
+  <div class="panel" id="preview-panel" style="display:none">
+    <div class="panel-header">
+      <div class="panel-title">👁 <span>Step 3</span> — Preview Data</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-size:12px;color:var(--muted);" id="preview-count"></span>
+        <button class="btn btn-ghost btn-sm" onclick="testAndLoad()">↻ Refresh</button>
+        <button class="btn btn-sm" style="background:#2d1a1a;color:#f87171;border:1px solid #7f1d1d;" onclick="clearPreview()">Clear</button>
+      </div>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <div class="preview-wrap">
+        <table class="preview-table" id="preview-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Label</th>
+              <th>Headline</th>
+              <th>Ticker</th>
+              <th>Location</th>
+              <th>Video</th>
+              <th>Thumb</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4: Push to Broadcast ══ -->
+  <div class="panel" id="push-panel" style="display:none">
+    <div class="panel-header">
+      <div class="panel-title">🚀 <span>Step 4</span> — Push to Broadcast</div>
+    </div>
+    <div class="panel-body">
+      <div class="push-bar">
+        <div class="push-info">
+          <div class="push-title">Ready to Broadcast</div>
+          <div class="push-desc" id="push-desc">Load data from your sheet to enable broadcast</div>
+        </div>
+        <div class="push-count" id="push-count">0</div>
+        <div class="push-btn-group">
+          <button class="btn-push-broadcast" onclick="pushToBroadcast()">
+            <span class="pulse"></span>
+            PUSH & GO LIVE
+          </button>
+          <button class="btn-open-broadcast" onclick="openBroadcast()">
+            📺 Open Broadcast Only
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.8;">
+        <strong style="color:#fff;">PUSH & GO LIVE</strong> — Saves playlist to browser storage and opens the broadcast page in a new tab ready to air.<br>
+        <strong style="color:#fff;">Open Broadcast Only</strong> — Opens the broadcast page without pushing new data.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ══ State ══ */
+  let loadedData = [];
+  let autoSyncInterval = null;
+  const SHEETS_KEY = 'sumantv_saved_sheets';
+  const PLAYLIST_KEY = 'sumantv_playlists';
+  const BROADCAST_URL = './sumantv_breaking_news_v4.html';
+
+  /* ══ CSV Parser — handles quoted fields with commas & newlines ══ */
+  function parseCSV(csv) {
+    const rows = [];
+    let row = [], current = '', inQuotes = false;
+    for (let i = 0; i < csv.length; i++) {
+      const ch = csv[i], next = csv[i+1];
+      if (ch === '"') {
+        if (inQuotes && next === '"') { current += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (ch === ',' && !inQuotes) {
+        row.push(current.trim()); current = '';
+      } else if ((ch === '\n' || (ch === '\r' && next === '\n')) && !inQuotes) {
+        if (ch === '\r') i++;
+        row.push(current.trim()); rows.push(row); row = []; current = '';
+      } else if (ch === '\r' && !inQuotes) {
+        row.push(current.trim()); rows.push(row); row = []; current = '';
+      } else { current += ch; }
+    }
+    if (current || row.length) { row.push(current.trim()); rows.push(row); }
+    return rows;
+  }
+
+  /* ══ Fetch sheet ══ */
+  async function fetchSheet(url) {
+    const proxies = [
+      u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+      u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+      u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+    ];
+    let lastErr = '';
+    for (const makeProxy of proxies) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 9000);
+        const res = await fetch(makeProxy(url), { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!res.ok) { lastErr = 'HTTP ' + res.status; continue; }
+        const csv = await res.text();
+        if (!csv || csv.length < 5) { lastErr = 'Empty response'; continue; }
+        const rows = parseCSV(csv);
+        if (rows.length < 2) { lastErr = 'No data rows'; continue; }
+        // Skip header row (row 0), parse from row 1
+        const data = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || r.every(c => !c)) continue; // skip empty rows
+          data.push({
+            label:     r[0] || 'BREAKING NEWS',
+            headline:  r[1] || '',
+            ticker:    r[2] || '',
+            location:  r[3] || 'Hyderabad',
+            video:     r[4] || '',
+            thumbnail: r[5] || '',
+          });
+        }
+        return data;
+      } catch(e) {
+        lastErr = e.name === 'AbortError' ? 'Timeout' : e.message;
+        continue;
+      }
+    }
+    throw new Error('All proxies failed. Last: ' + lastErr);
+  }
+
+  /* ══ Test & Load ══ */
+  async function testAndLoad() {
+    const url = document.getElementById('sheet-url').value.trim();
+    const result = document.getElementById('test-result');
+    if (!url) { showResult('err', '❌ Please paste your Google Sheet CSV URL first.'); return; }
+
+    setStatus('loading', 'Connecting...');
+    showResult('loading', '🔄 Connecting to sheet...');
+
+    try {
+      const data = await fetchSheet(url);
+      if (!data.length) { showResult('err', '❌ Sheet loaded but no data rows found. Check Row 2 has content.'); setStatus('err', 'No data'); return; }
+
+      loadedData = data;
+      showResult('ok', `✅ Connected! Found <strong>${data.length} news item${data.length>1?'s':''}</strong> ready to broadcast.`);
+      setStatus('ok', `Loaded ${data.length} items · ${new Date().toLocaleTimeString('en-IN')}`);
+
+      renderPreview(data);
+      document.getElementById('preview-panel').style.display = 'block';
+      document.getElementById('push-panel').style.display = 'block';
+      document.getElementById('push-count').textContent = data.length;
+      document.getElementById('push-desc').textContent = `${data.length} news item${data.length>1?'s':''} loaded from sheet — ready to push to broadcast`;
+    } catch(e) {
+      showResult('err', '❌ Connection failed: ' + e.message);
+      setStatus('err', 'Connection failed');
+    }
+  }
+
+  /* ══ Render Preview ══ */
+  function renderPreview(data) {
+    const tbody = document.getElementById('preview-body');
+    document.getElementById('preview-count').textContent = data.length + ' items loaded';
+
+    const labelColors = {
+      'EXCLUSIVE': '#7c3aed', 'JUST IN': '#1d4ed8',
+      'DEVELOPING': '#b45309', 'LIVE UPDATE': '#166534'
+    };
+
+    tbody.innerHTML = data.map((item, i) => {
+      const lc = labelColors[item.label?.toUpperCase()] || '#E8001D';
+      const videoShort = item.video ? (item.video.length > 40 ? '...' + item.video.slice(-37) : item.video) : '—';
+      const thumb = item.thumbnail
+        ? `<img src="${item.thumbnail}" alt="" onerror="this.parentElement.innerHTML='<div class=no-thumb>No image</div>'">`
+        : '<div class="no-thumb">No image</div>';
+      return `
+        <tr id="preview-row-${i}">
+          <td class="td-num">${i+1}</td>
+          <td class="td-label"><span style="background:${lc};color:#fff;padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:1px;">${item.label || 'BREAKING NEWS'}</span></td>
+          <td class="td-headline">${item.headline || '<span style="color:#4b5563">—</span>'}</td>
+          <td class="td-ticker">${item.ticker || '<span style="color:#4b5563">—</span>'}</td>
+          <td class="td-loc">${item.location || '—'}</td>
+          <td class="td-video" title="${item.video}">${videoShort}</td>
+          <td class="td-thumb">${thumb}</td>
+          <td><div class="row-actions"><button class="btn-row-del" onclick="removeRow(${i})">✕</button></div></td>
+        </tr>`;
+    }).join('');
+  }
+
+  function removeRow(idx) {
+    loadedData.splice(idx, 1);
+    renderPreview(loadedData);
+    document.getElementById('push-count').textContent = loadedData.length;
+    document.getElementById('preview-count').textContent = loadedData.length + ' items loaded';
+    if (loadedData.length === 0) { clearPreview(); }
+  }
+
+  function clearPreview() {
+    loadedData = [];
+    document.getElementById('preview-panel').style.display = 'none';
+    document.getElementById('push-panel').style.display = 'none';
+    document.getElementById('test-result').style.display = 'none';
+    setStatus('', 'Not connected');
+  }
+
+  /* ══ Push to Broadcast ══ */
+  function pushToBroadcast() {
+    if (!loadedData.length) { alert('No data loaded. Connect your sheet first.'); return; }
+
+    // Build playlist in sumantv_breaking_news_v4 format
+    const playlist = {
+      id: Date.now(),
+      name: document.getElementById('sheet-name').value.trim() || 'Sheet Playlist — ' + new Date().toLocaleString('en-IN'),
+      location: loadedData[0]?.location || 'Hyderabad',
+      speed: '45',
+      savedAt: new Date().toLocaleString('en-IN'),
+      itemCount: loadedData.length,
+      items: loadedData.map(item => ({
+        url:      item.video,
+        hl:       item.headline,
+        tk:       item.ticker,
+        mt:       'video',
+        label:    item.label,
+        thumb:    item.thumbnail,
+        location: item.location,
+      }))
+    };
+
+    // Save as first playlist in broadcast page storage
+    let playlists = [];
+    try { playlists = JSON.parse(localStorage.getItem(PLAYLIST_KEY)) || []; } catch(e) { playlists = []; }
+    // Remove any existing "Sheet Playlist" entry and add new one at top
+    playlists = playlists.filter(p => !p.name.startsWith('Sheet Playlist'));
+    playlists.unshift(playlist);
+    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(playlists));
+
+    // Also store as current active playlist for auto-load
+    localStorage.setItem('sumantv_active_playlist', JSON.stringify(playlist));
+
+    // Open broadcast page
+    window.open(BROADCAST_URL, '_blank');
+
+    // Show success
+    showResult('ok', `✅ Pushed ${loadedData.length} items to broadcast! The broadcast page will open with your playlist pre-loaded. Click 📂 Load Playlist → select "<strong>${playlist.name}</strong>" then GO LIVE.`);
+  }
+
+  function openBroadcast() {
+    window.open(BROADCAST_URL, '_blank');
+  }
+
+  /* ══ Auto-sync ══ */
+  function toggleAutoSync() {
+    const on = document.getElementById('autosync-toggle').checked;
+    if (on) {
+      autoSyncInterval = setInterval(() => {
+        const url = document.getElementById('sheet-url').value.trim();
+        if (url && document.getElementById('preview-panel').style.display !== 'none') {
+          testAndLoad();
+        }
+      }, 30000);
+      setStatus('ok', 'Auto-sync ON · every 30s');
+    } else {
+      if (autoSyncInterval) clearInterval(autoSyncInterval);
+      setStatus('ok', 'Auto-sync OFF');
+    }
+  }
+
+  /* ══ Save / Load Sheets ══ */
+  function getSavedSheets() { try { return JSON.parse(localStorage.getItem(SHEETS_KEY)) || []; } catch(e) { return []; } }
+  function saveSheetsStorage(list) { localStorage.setItem(SHEETS_KEY, JSON.stringify(list)); }
+
+  function saveSheet() {
+    const url = document.getElementById('sheet-url').value.trim();
+    const name = document.getElementById('sheet-name').value.trim();
+    if (!url) { alert('Please enter a sheet URL first.'); return; }
+    const list = getSavedSheets();
+    if (list.find(s => s.url === url)) { alert('This sheet is already saved.'); return; }
+    list.unshift({ id: Date.now(), name: name || 'Sheet ' + (list.length + 1), url, savedAt: new Date().toLocaleString('en-IN') });
+    saveSheetsStorage(list);
+    renderSavedSheets();
+  }
+
+  function renderSavedSheets() {
+    const list = getSavedSheets();
+    const wrap = document.getElementById('saved-sheets-wrap');
+    const el = document.getElementById('saved-sheet-list');
+    if (!list.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    el.innerHTML = list.map(s => `
+      <div class="saved-sheet-item">
+        <div class="ss-info">
+          <div class="ss-name">${s.name}</div>
+          <div class="ss-url">${s.url}</div>
+        </div>
+        <div class="ss-actions">
+          <button class="btn-ss-load" onclick="loadSavedSheet('${s.id}')">Load</button>
+          <button class="btn-ss-del" onclick="deleteSavedSheet('${s.id}')">✕</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function loadSavedSheet(id) {
+    const s = getSavedSheets().find(x => x.id == id);
+    if (!s) return;
+    document.getElementById('sheet-url').value = s.url;
+    document.getElementById('sheet-name').value = s.name;
+    testAndLoad();
+  }
+
+  function deleteSavedSheet(id) {
+    saveSheetsStorage(getSavedSheets().filter(x => x.id != id));
+    renderSavedSheets();
+  }
+
+  /* ══ Helpers ══ */
+  function showResult(type, msg) {
+    const el = document.getElementById('test-result');
+    el.className = 'test-result ' + type;
+    el.innerHTML = msg;
+  }
+
+  function setStatus(state, text) {
+    const dot = document.getElementById('status-dot');
+    const label = document.getElementById('status-text');
+    dot.className = 'status-dot' + (state ? ' ' + state : '');
+    label.textContent = text;
+  }
+
+  /* ══ Init ══ */
+  renderSavedSheets();
+</script>
+</body>
+</html>

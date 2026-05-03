@@ -105,14 +105,14 @@
   .breaking-label { display: inline-flex; align-items: center; gap: 6px; background: var(--red); padding: 4px 20px 4px 14px; clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%); margin-bottom: 12px; }
   .breaking-label-text { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: #fff; }
   .headline-text { font-family: 'Noto Sans Telugu','Barlow Condensed',sans-serif; font-size: clamp(26px, 3.8vw, 50px); font-weight: 900; color: #fff; line-height: 1.18; text-shadow: 0 2px 24px rgba(0,0,0,0.9); max-width: 85%; }
-  .accent-line { height: 3px; background: linear-gradient(90deg, var(--red) 0%, var(--gold) 55%, transparent 100%); margin: 12px 0 0; max-width: 65%; }
-  .ticker-strip { width: 100%; background: rgba(0,0,0,0.9); border-top: 3px solid var(--red); display: flex; align-items: stretch; overflow: hidden; flex-shrink: 0; min-height: 50px; }
-  .ticker-label { background: var(--red); display: flex; align-items: center; justify-content: center; padding: 0 22px; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 3px; color: #fff; white-space: nowrap; flex-shrink: 0; position: relative; }
+  .accent-line { display: none; }
+  .ticker-strip { width: 100%; background: rgba(0,0,0,0.9); border-top: 3px solid var(--red); display: flex; align-items: stretch; overflow: hidden; flex-shrink: 0; min-height: 58px; }
+  .ticker-label { background: var(--red); display: flex; align-items: center; justify-content: center; padding: 0 24px; font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 3px; color: #fff; white-space: nowrap; flex-shrink: 0; position: relative; z-index: 2; }
   .ticker-label::after { content: ''; position: absolute; right: -13px; top: 0; bottom: 0; width: 13px; background: var(--red); clip-path: polygon(0 0, 0 100%, 100% 50%); }
-  .ticker-track { flex: 1; overflow: hidden; display: flex; align-items: center; padding-left: 26px; }
+  .ticker-track { flex: 1; overflow: hidden; display: flex; align-items: center; padding-left: 20px; position: relative; }
   .ticker-inner { display: flex; align-items: center; white-space: nowrap; animation: st linear infinite; }
-  .ticker-item { font-family: 'Noto Sans Telugu','Barlow',sans-serif; font-size: 15px; font-weight: 500; color: #fff; padding: 0 8px; }
-  .ticker-sep { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); margin: 0 20px; flex-shrink: 0; }
+  .ticker-item { font-family: 'Noto Sans Telugu','Barlow',sans-serif; font-size: 19px; font-weight: 600; color: #fff; padding: 0 10px; }
+  .ticker-sep { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin: 0 24px; flex-shrink: 0; vertical-align: middle; }
   @keyframes st { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 </style>
 </head>

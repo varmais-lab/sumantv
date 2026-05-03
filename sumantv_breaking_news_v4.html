@@ -205,7 +205,7 @@
       <div class="accent-line"></div>
     </div>
     <div class="ticker-strip">
-      <div class="ticker-label">HIGHLIGHTS</div>
+      <div class="ticker-label"><span id="ticker-label-text">HIGHLIGHTS</span></div>
       <div class="ticker-track">
         <div class="ticker-inner" id="ticker-inner"></div>
       </div>
@@ -312,6 +312,35 @@
   function loadItem(idx) {
     const item = playlist[idx];
     const speed = parseInt(document.getElementById('speed-input').value);
+
+    // Label — drives both breaking badge AND ticker label
+    const labelMap = {
+      'BREAKING NEWS': '⚡ BREAKING NEWS',
+      'EXCLUSIVE':     '🔴 EXCLUSIVE',
+      'JUST IN':       '🔵 JUST IN',
+      'DEVELOPING':    '🟡 DEVELOPING',
+      'LIVE UPDATE':   '🟢 LIVE UPDATE',
+    };
+    const labelColors = {
+      'EXCLUSIVE':  '#7c3aed',
+      'JUST IN':    '#1d4ed8',
+      'DEVELOPING': '#b45309',
+      'LIVE UPDATE':'#166534',
+    };
+    const rawLabel = (item.label || item.mt === 'video' ? (item.label || 'BREAKING NEWS') : 'BREAKING NEWS').toUpperCase();
+    const badgeText  = labelMap[rawLabel] || ('⚡ ' + rawLabel);
+    const badgeColor = labelColors[rawLabel] || 'var(--red)';
+
+    // Update breaking label badge
+    const badge = document.getElementById('breaking-label');
+    if (badge) {
+      badge.style.background = badgeColor;
+      badge.querySelector('.breaking-label-text').textContent = badgeText;
+    }
+
+    // Update ticker label (red box on left)
+    const tickerLbl = document.getElementById('ticker-label-text');
+    if (tickerLbl) tickerLbl.textContent = rawLabel;
 
     // Headline
     document.getElementById('display-headline').textContent = item.hl;

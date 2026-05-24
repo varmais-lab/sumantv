@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Strategy Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --bg: #0C0C10;
+  --surface: #14141A;
+  --border: rgba(255,255,255,0.07);
+  --text: #E8E6DF;
+  --muted: #6B6A6F;
+  --accent1: #F5A623; /* amber */
+  --accent2: #4ECDC4; /* teal */
+  --accent3: #FF6B6B; /* coral */
+  --accent4: #A8E6CF; /* mint */
+  --accent5: #C9B1FF; /* lavender */
+  --accent6: #FFD93D; /* yellow */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── TOP BAR ── */
+header {
+  padding: 28px 40px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  background: rgba(12,12,16,0.92);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+}
+.header-left h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.header-left p {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.header-stats {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.hstat {
+  text-align: right;
+}
+.hstat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent1);
+  line-height: 1;
+}
+.hstat-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── FILTERS ── */
+#filters {
+  padding: 16px 40px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 85px;
+  z-index: 40;
+}
+.filter-btn {
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.filter-btn:hover { border-color: var(--accent1); color: var(--accent1); }
+.filter-btn.active {
+  background: var(--accent1);
+  border-color: var(--accent1);
+  color: #000;
+}
+.filter-btn[data-cat="Business"] { --cat-c: var(--accent1); }
+.filter-btn[data-cat="Tech & AI"] { --cat-c: var(--accent2); }
+.filter-btn[data-cat="Agriculture"] { --cat-c: var(--accent4); }
+.filter-btn[data-cat="Finance"] { --cat-c: var(--accent6); }
+.filter-btn[data-cat="Infotainment"] { --cat-c: var(--accent3); }
+.filter-btn[data-cat="Lifestyle"] { --cat-c: var(--accent5); }
+.filter-btn[data-cat="Local / Regional"] { --cat-c: #F97316; }
+.filter-btn.active { background: var(--cat-c, var(--accent1)); border-color: var(--cat-c, var(--accent1)); color: #000; }
+
+/* ── MAIN LAYOUT ── */
+main {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 140px);
+}
+
+/* ── SIDEBAR ── */
+aside {
+  border-right: 1px solid var(--border);
+  padding: 28px 24px;
+  position: sticky;
+  top: 140px;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+aside::-webkit-scrollbar { width: 4px; }
+aside::-webkit-scrollbar-track { background: transparent; }
+aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-section { margin-bottom: 32px; }
+.sidebar-title {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* Category distribution bars */
+.cat-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cat-bar-item { cursor: pointer; }
+.cat-bar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.cat-bar-name { font-size: 12px; font-weight: 600; }
+.cat-bar-count { font-size: 11px; color: var(--muted); }
+.cat-bar-track {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.cat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(.4,0,.2,1);
+}
+
+/* Priority matrix */
+.priority-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.p-cell {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.p-cell-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.p-cell-items { color: var(--muted); }
+
+/* Audience tags */
+.audience-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.aud-tag {
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.05);
+  font-size: 10px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ── CONTENT AREA ── */
+.content-area {
+  padding: 28px 36px;
+}
+
+/* Strategy intro */
+.strategy-banner {
+  background: linear-gradient(135deg, rgba(245,166,35,0.08) 0%, rgba(78,205,196,0.06) 100%);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+.sb-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent1);
+  margin-bottom: 6px;
+}
+.sb-text {
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  color: rgba(232,230,223,0.7);
+  line-height: 1.7;
+}
+.sb-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+.sb-pillar {
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Section heading */
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-heading h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.section-heading span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Cards grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.account-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.25s, transform 0.2s, background 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.account-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--card-accent, var(--accent1));
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.account-card:hover {
+  border-color: var(--card-accent, var(--accent1));
+  background: rgba(255,255,255,0.02);
+  transform: translateY(-2px);
+}
+.account-card:hover::before { opacity: 1; }
+.account-card.hidden { display: none; }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card-handle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  word-break: break-all;
+  line-height: 1.3;
+}
+.card-handle a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.card-handle a:hover { color: var(--card-accent, var(--accent1)); }
+
+.card-cat {
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-topic {
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  color: rgba(232,230,223,0.65);
+  line-height: 1.6;
+}
+
+.card-footer {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.card-tag {
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── STRATEGY SECTION ── */
+.strategy-section {
+  margin-top: 36px;
+}
+.strat-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.strat-tab {
+  padding: 10px 18px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+}
+.strat-tab:hover { color: var(--text); }
+.strat-tab.active {
+  color: var(--accent1);
+  border-bottom-color: var(--accent1);
+}
+
+.strat-panel { display: none; }
+.strat-panel.active { display: block; }
+
+.strat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.strat-card {
+  padding: 22px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.strat-card-icon { font-size: 24px; margin-bottom: 12px; }
+.strat-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.strat-card-body {
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* Content calendar table */
+.cal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.cal-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.cal-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.cal-table tr:hover td { background: rgba(255,255,255,0.02); }
+.cal-day { font-weight: 700; color: var(--accent1); min-width: 90px; }
+.cal-format {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.cal-topic { color: var(--muted); font-family: 'Lora', serif; font-size: 12px; }
+.cal-source { font-size: 11px; color: var(--accent2); }
+
+/* KPI table */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  padding: 20px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  text-align: center;
+}
+.kpi-num {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.kpi-label {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Category colors */
+.cat-business { --cat-c: var(--accent1); }
+.cat-tech { --cat-c: var(--accent2); }
+.cat-agri { --cat-c: var(--accent4); }
+.cat-finance { --cat-c: var(--accent6); }
+.cat-info { --cat-c: var(--accent3); }
+.cat-lifestyle { --cat-c: var(--accent5); }
+.cat-local { --cat-c: #F97316; }
+
+.scroll-hint {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  main { grid-template-columns: 1fr; }
+  aside { display: none; }
+  .strat-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Content Strategy Dashboard</h1>
+    <p>Curated Instagram accounts — categories, strategy & calendar</p>
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><div class="hstat-num">39</div><div class="hstat-label">Accounts</div></div>
+    <div class="hstat"><div class="hstat-num">7</div><div class="hstat-label">Categories</div></div>
+    <div class="hstat"><div class="hstat-num">5</div><div class="hstat-label">Audiences</div></div>
+  </div>
+</header>
+
+<div id="filters">
+  <button class="filter-btn active" data-cat="all">All (39)</button>
+  <button class="filter-btn" data-cat="Business">💼 Business</button>
+  <button class="filter-btn" data-cat="Tech & AI">🤖 Tech & AI</button>
+  <button class="filter-btn" data-cat="Agriculture">🌾 Agriculture</button>
+  <button class="filter-btn" data-cat="Finance">📈 Finance</button>
+  <button class="filter-btn" data-cat="Infotainment">🎬 Infotainment</button>
+  <button class="filter-btn" data-cat="Lifestyle">✨ Lifestyle</button>
+  <button class="filter-btn" data-cat="Local / Regional">📍 Local / Regional</button>
+</div>
+
+<main>
+  <aside>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Category Breakdown</div>
+      <div class="cat-bar-row" id="cat-bars"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Priority Matrix</div>
+      <div class="priority-grid">
+        <div class="p-cell" style="border-color:rgba(245,166,35,0.3)">
+          <div class="p-cell-label" style="color:var(--accent1)">🔥 High Priority</div>
+          <div class="p-cell-items">Business<br>Tech & AI<br>Finance</div>
+        </div>
+        <div class="p-cell" style="border-color:rgba(78,205,196,0.3)">
+          <div class="p-cell-label" style="color:var(--accent2)">📌 Strategic</div>
+          <div class="p-cell-items">Agriculture<br>Local / Regional</div>
+        </div>
+        <div class="p-cell" style="border-color:rgba(255,107,107,0.3)">
+          <div class="p-cell-label" style="color:var(--accent3)">🎯 Engagement</div>
+          <div class="p-cell-items">Infotainment<br>Viral Content</div>
+        </div>
+        <div class="p-cell" style="border-color:rgba(201,177,255,0.3)">
+          <div class="p-cell-label" style="color:var(--accent5)">🌱 Growth</div>
+          <div class="p-cell-items">Lifestyle<br>Science</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Target Audiences</div>
+      <div class="audience-tags">
+        <span class="aud-tag">Startups</span>
+        <span class="aud-tag">Students</span>
+        <span class="aud-tag">Farmers</span>
+        <span class="aud-tag">Entrepreneurs</span>
+        <span class="aud-tag">IT Employees</span>
+        <span class="aud-tag">Unemployed</span>
+        <span class="aud-tag">Telugu-speaking</span>
+        <span class="aud-tag">SMSEs</span>
+        <span class="aud-tag">Gen Z</span>
+        <span class="aud-tag">Investors</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Content Mix Target</div>
+      <div class="cat-bar-row">
+        <div class="cat-bar-item">
+          <div class="cat-bar-top"><span class="cat-bar-name" style="color:var(--accent1)">Educational</span><span class="cat-bar-count">40%</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:40%;background:var(--accent1)"></div></div>
+        </div>
+        <div class="cat-bar-item">
+          <div class="cat-bar-top"><span class="cat-bar-name" style="color:var(--accent3)">Viral / Engage</span><span class="cat-bar-count">30%</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:30%;background:var(--accent3)"></div></div>
+        </div>
+        <div class="cat-bar-item">
+          <div class="cat-bar-top"><span class="cat-bar-name" style="color:var(--accent2)">Regional</span><span class="cat-bar-count">20%</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:20%;background:var(--accent2)"></div></div>
+        </div>
+        <div class="cat-bar-item">
+          <div class="cat-bar-top"><span class="cat-bar-name" style="color:var(--accent5)">Lifestyle</span><span class="cat-bar-count">10%</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:10%;background:var(--accent5)"></div></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content-area">
+
+    <div class="strategy-banner">
+      <div>
+        <div class="sb-heading">Your Content Strategy at a Glance</div>
+        <div class="sb-text">
+          39 curated accounts across 7 categories — build a cross-platform content engine targeting Telugu-speaking entrepreneurs, students, farmers, and startup ecosystems with a mix of education, viral infotainment, and regional depth.
+        </div>
+      </div>
+      <div class="sb-pillars">
+        <div class="sb-pillar" style="background:rgba(245,166,35,0.12);color:var(--accent1)">💡 Educate</div>
+        <div class="sb-pillar" style="background:rgba(255,107,107,0.12);color:var(--accent3)">🔥 Entertain</div>
+        <div class="sb-pillar" style="background:rgba(78,205,196,0.12);color:var(--accent2)">🌐 Distribute</div>
+        <div class="sb-pillar" style="background:rgba(201,177,255,0.12);color:var(--accent5)">🤝 Build Community</div>
+      </div>
+    </div>
+
+    <div class="section-heading">
+      <h2>Account Library</h2>
+      <span id="card-count">39 accounts</span>
+    </div>
+    <div class="cards-grid" id="cards-grid"></div>
+
+    <!-- STRATEGY TABS -->
+    <div class="strategy-section">
+      <div class="strat-tabs">
+        <div class="strat-tab active" data-tab="playbook">📋 Playbook</div>
+        <div class="strat-tab" data-tab="calendar">📅 Weekly Calendar</div>
+        <div class="strat-tab" data-tab="kpi">📊 KPIs</div>
+        <div class="strat-tab" data-tab="gaps">⚠️ Gaps & Actions</div>
+      </div>
+
+      <!-- PLAYBOOK -->
+      <div class="strat-panel active" id="tab-playbook">
+        <div class="strat-grid">
+          <div class="strat-card">
+            <div class="strat-card-icon">🤖</div>
+            <div class="strat-card-title" style="color:var(--accent2)">AI & Tech Content</div>
+            <div class="strat-card-body">Draw inspiration from inc42, power.ai, satyamtechinsights & firstprinciplesconsult. Focus on bite-sized AI updates, tool spotlights, and founder-facing tech stories. Post 4–5×/week in Reels format.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">🌾</div>
+            <div class="strat-card-title" style="color:var(--accent4)">Agri & Rural Economy</div>
+            <div class="strat-card-body">Reference farmcult_, rythannanestam for farmer success stories, agritech innovations, and SMSE ideas. Telugu-language content here will have the highest regional reach. Post 3×/week.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">💼</div>
+            <div class="strat-card-title" style="color:var(--accent1)">Business & Startups</div>
+            <div class="strat-card-body">Study indiasstartup, foundersinindia, inc42, businessmode.in. Build a pipeline of startup case studies, funding news, and business idea carousels. Aim for 5×/week — highest priority pillar.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">📈</div>
+            <div class="strat-card-title" style="color:var(--accent6)">Finance & Wealth</div>
+            <div class="strat-card-body">Study portal.tradebrains, stockmarket.edges, bingewealth, finographic. Translate complex finance into visual infographics + short reels. Focus on stock, wealth-building and business ROI. 3×/week.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">🎬</div>
+            <div class="strat-card-title" style="color:var(--accent3)">Viral Infotainment</div>
+            <div class="strat-card-body">Reference inshorts_app, mythvsreality, facts_trend, dynamic_science, sci4tech for format inspiration. Create hooks in the first 2 seconds, leverage surprise/contrast. Run 2–3 viral-first pieces weekly.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">📍</div>
+            <div class="strat-card-title" style="color:#F97316">Local / Regional</div>
+            <div class="strat-card-body">Leverage apgovtschemes, indian.compass, teluguentrepreneursindia, moneyfactorytelugu1. Produce Telugu-language content covering government schemes, Hyderabad business, and regional success stories. 3×/week.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">✨</div>
+            <div class="strat-card-title" style="color:var(--accent5)">Lifestyle & Mindset</div>
+            <div class="strat-card-body">Reference qualitick, Jay Shetty, bhagavadknowledge. Short motivational reels to serve as retention/community content. Complements the harder business/finance pillars. 2×/week.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">🔁</div>
+            <div class="strat-card-title" style="color:var(--accent2)">Cross-Platform Rule</div>
+            <div class="strat-card-body">Every piece of content should be adapted: Reels (15–60s) → Carousel → Story → YouTube Shorts. One core idea, 4 format variants. Use AI tools (CapCut, Canva, Descript) for speed.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">🌏</div>
+            <div class="strat-card-title" style="color:var(--accent4)">Multilingual Strategy</div>
+            <div class="strat-card-body">Primary: English for business/tech. Secondary: Telugu for agri, local govt, regional entrepreneurship. Always add Telugu subtitles to English Reels for broader reach. Tap moneyfactorytelugu1 as a format template.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div class="strat-panel" id="tab-calendar">
+        <table class="cal-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Format</th>
+              <th>Topic / Theme</th>
+              <th>Inspired By</th>
+              <th>Audience</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cal-day">Monday</td>
+              <td><span class="cal-format" style="background:rgba(245,166,35,0.15);color:var(--accent1)">CAROUSEL</span></td>
+              <td class="cal-topic">Startup / Business Idea of the Week</td>
+              <td class="cal-source">inc42, businessmode.in</td>
+              <td><span class="card-tag">Entrepreneurs</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day">Tuesday</td>
+              <td><span class="cal-format" style="background:rgba(78,205,196,0.15);color:var(--accent2)">REEL</span></td>
+              <td class="cal-topic">AI Tool / Tech Update (60s explainer)</td>
+              <td class="cal-source">power.ai, satyamtechinsights</td>
+              <td><span class="card-tag">IT Employees</span> <span class="card-tag">Founders</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day">Wednesday</td>
+              <td><span class="cal-format" style="background:rgba(168,230,207,0.15);color:var(--accent4)">REEL (Telugu)</span></td>
+              <td class="cal-topic">Farmer Success Story / AgriTech News</td>
+              <td class="cal-source">farmcult_, rythannanestam</td>
+              <td><span class="card-tag">Farmers</span> <span class="card-tag">SMSEs</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day">Thursday</td>
+              <td><span class="cal-format" style="background:rgba(255,217,61,0.15);color:var(--accent6)">INFOGRAPHIC</span></td>
+              <td class="cal-topic">Stock Market / Finance Insight</td>
+              <td class="cal-source">portal.tradebrains, stockmarket.edges</td>
+              <td><span class="card-tag">Investors</span> <span class="card-tag">Students</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day">Friday</td>
+              <td><span class="cal-format" style="background:rgba(255,107,107,0.15);color:var(--accent3)">VIRAL REEL</span></td>
+              <td class="cal-topic">Myth vs Reality / Surprising Fact</td>
+              <td class="cal-source">mythvsreality, facts_trend</td>
+              <td><span class="card-tag">Gen Z</span> <span class="card-tag">All</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day">Saturday</td>
+              <td><span class="cal-format" style="background:rgba(249,115,22,0.15);color:#F97316">REEL (Telugu)</span></td>
+              <td class="cal-topic">Government Scheme / Local Opportunity</td>
+              <td class="cal-source">apgovtschemes, indian.compass</td>
+              <td><span class="card-tag">Telugu Audience</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day">Sunday</td>
+              <td><span class="cal-format" style="background:rgba(201,177,255,0.15);color:var(--accent5)">STORY / MINDSET</span></td>
+              <td class="cal-topic">Mindset / Life Lesson / Motivation</td>
+              <td class="cal-source">qualitick, Jay Shetty</td>
+              <td><span class="card-tag">Community</span> <span class="card-tag">Students</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- KPIs -->
+      <div class="strat-panel" id="tab-kpi">
+        <div class="kpi-grid" style="margin-bottom:20px">
+          <div class="kpi-card">
+            <div class="kpi-num" style="color:var(--accent1)">7</div>
+            <div class="kpi-label">Posts per week<br>(minimum cadence)</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-num" style="color:var(--accent2)">4</div>
+            <div class="kpi-label">Formats per idea<br>(Reel, Carousel, Story, Short)</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-num" style="color:var(--accent4)">2</div>
+            <div class="kpi-label">Languages<br>(English + Telugu)</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-num" style="color:var(--accent3)">30%</div>
+            <div class="kpi-label">Viral-first content<br>target in weekly mix</div>
+          </div>
+        </div>
+        <div class="strat-grid">
+          <div class="strat-card">
+            <div class="strat-card-icon">📊</div>
+            <div class="strat-card-title">Engagement Rate</div>
+            <div class="strat-card-body">Target: 4–7% average engagement on Reels. Track saves and shares as primary signals — they indicate content worth reposting. Likes are vanity; shares are currency.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">📈</div>
+            <div class="strat-card-title">Follower Growth</div>
+            <div class="strat-card-body">Month 1: Benchmark baseline. Month 2–3: Target 10–15% MoM growth via consistent posting + 1 viral hit/week. Month 6: Aim for 5K+ organic followers per account.</div>
+          </div>
+          <div class="strat-card">
+            <div class="strat-card-icon">🎯</div>
+            <div class="strat-card-title">Reach & Impressions</div>
+            <div class="strat-card-body">Non-follower reach should exceed 60% of total reach — this signals algorithm distribution. If it drops below 50%, revisit hooks and hashtag strategy immediately.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAPS -->
+      <div class="strat-panel" id="tab-gaps">
+        <div class="strat-grid">
+          <div class="strat-card" style="border-color:rgba(255,107,107,0.3)">
+            <div class="strat-card-icon">⚠️</div>
+            <div class="strat-card-title" style="color:var(--accent3)">Gap: Real Estate</div>
+            <div class="strat-card-body">Only 1 account (telangana_lowcst_propertieshyd) covers real estate — a massive category for the Hyderabad audience. Add 2–3 more references and develop a dedicated Hyderabad property content series.</div>
+          </div>
+          <div class="strat-card" style="border-color:rgba(255,107,107,0.3)">
+            <div class="strat-card-icon">⚠️</div>
+            <div class="strat-card-title" style="color:var(--accent3)">Gap: Women Entrepreneurs</div>
+            <div class="strat-card-body">None of the curated accounts specifically target women founders or SHG content. This is an underserved high-growth segment in Telugu states. Source 2–3 reference accounts to fill this gap.</div>
+          </div>
+          <div class="strat-card" style="border-color:rgba(255,107,107,0.3)">
+            <div class="strat-card-icon">⚠️</div>
+            <div class="strat-card-title" style="color:var(--accent3)">Gap: Long-form Content</div>
+            <div class="strat-card-body">All references skew Reels/short-form. No YouTube deep-dives or podcast-style content. Consider adding a weekly long-form piece (YouTube/LinkedIn) to build authority alongside virality.</div>
+          </div>
+          <div class="strat-card" style="border-color:rgba(245,166,35,0.3)">
+            <div class="strat-card-icon">✅</div>
+            <div class="strat-card-title" style="color:var(--accent1)">Action: Audience Labels</div>
+            <div class="strat-card-body">Several accounts (indian.compass, qualitick, southcassette) lack clear audience definitions in your doc. Define the ICP for each before creating content inspired by them.</div>
+          </div>
+          <div class="strat-card" style="border-color:rgba(245,166,35,0.3)">
+            <div class="strat-card-icon">✅</div>
+            <div class="strat-card-title" style="color:var(--accent1)">Action: Scope Alignment</div>
+            <div class="strat-card-body">Several accounts have "WOW content" listed as scope — clarify what WOW means per category (viral hook style? production quality? emotional response?) to give your team a precise brief.</div>
+          </div>
+          <div class="strat-card" style="border-color:rgba(78,205,196,0.3)">
+            <div class="strat-card-icon">💡</div>
+            <div class="strat-card-title" style="color:var(--accent2)">Opportunity: Collab Content</div>
+            <div class="strat-card-body">teluguentrepreneursindia + farmcult_ + moneyfactorytelugu1 could form a powerful Telugu content triangle — business, agri, and wealth in one coordinated campaign targeting the same audience.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content-area -->
+</main>
+
+<script>
+const accounts = [
+  { handle: "inc42.media", url: "https://www.instagram.com/inc42.media/", topic: "Tech, brands, funding, innovations, startups", cat: "Business", tags: ["Startups", "Multi-lingual", "Funding"] },
+  { handle: "apgovtschemes", url: "https://www.instagram.com/apgovtschemes/", topic: "AP government schemes updates", cat: "Local / Regional", tags: ["Farmers", "Mass", "Unemployed"] },
+  { handle: "indian.compass", url: "https://www.instagram.com/indian.compass", topic: "National News latest updates", cat: "Local / Regional", tags: ["Telugu People", "News"] },
+  { handle: "farmcult_", url: "https://www.instagram.com/farmcult_/", topic: "Farming, Agritech, SMSE, Investment", cat: "Agriculture", tags: ["Agritech", "Wow Content", "IT Emps"] },
+  { handle: "rythannanestam", url: "https://www.instagram.com/rythannanestam/", topic: "Agri entrepreneurs, Farmer success stories", cat: "Agriculture", tags: ["Farmers", "Telugu", "Wow Content"] },
+  { handle: "bingewealth", url: "https://www.instagram.com/bingewealth/", topic: "Wealth, Viral content, Infotainment", cat: "Finance", tags: ["Viral", "Wealth"] },
+  { handle: "firstprinciplesconsult", url: "https://www.instagram.com/firstprinciplesconsult/reels/", topic: "AI, International, Tech, Founders", cat: "Tech & AI", tags: ["AI", "Founders", "International"] },
+  { handle: "teluguentrepreneursindia", url: "https://www.instagram.com/teluguentrepreneursindia/", topic: "Telugu Entrepreneurs — Success Stories & Business Ideas", cat: "Local / Regional", tags: ["Telugu", "Entrepreneurs"] },
+  { handle: "inshorts_app", url: "https://www.instagram.com/inshorts_app/reels/", topic: "Infotainment news bites", cat: "Infotainment", tags: ["Infotainment", "Short-form"] },
+  { handle: "power.ai", url: "https://www.instagram.com/power.ai/reels/", topic: "AI latest updates", cat: "Tech & AI", tags: ["AI", "Updates"] },
+  { handle: "bhagavadknowledge", url: "https://www.instagram.com/bhagavadknowledge/", topic: "Sanātana Dharma — Knowledge of the Ancient World", cat: "Lifestyle", tags: ["Spirituality", "Culture"] },
+  { handle: "telangana_lowcst_propertieshyd", url: "https://www.instagram.com/telangana_lowcst_propertieshyd/", topic: "Telangana Real Estate", cat: "Local / Regional", tags: ["Hyderabad", "Real Estate"] },
+  { handle: "qualitick", url: "https://www.instagram.com/qualitick/reels/", topic: "Self-improvement", cat: "Lifestyle", tags: ["Self-growth", "Motivation"] },
+  { handle: "studyindianlaw", url: "https://www.instagram.com/studyindianlaw/", topic: "Law / General Knowledge / Current Affairs", cat: "Infotainment", tags: ["Law", "GK", "Current Affairs"] },
+  { handle: "indiasstartup", url: "https://www.instagram.com/indiasstartup/", topic: "Startup and entrepreneurship", cat: "Business", tags: ["Startups", "Entrepreneurship"] },
+  { handle: "southcassette", url: "https://www.instagram.com/southcassette/reels/", topic: "Gen Z, viral content", cat: "Infotainment", tags: ["Gen Z", "Viral"] },
+  { handle: "parties.hyd", url: "https://www.instagram.com/parties.hyd/", topic: "Hyderabad parties & events page", cat: "Local / Regional", tags: ["Hyderabad", "Events"] },
+  { handle: "sci4tech", url: "https://www.instagram.com/sci4tech/", topic: "Scientific infotainment", cat: "Infotainment", tags: ["Science", "Education"] },
+  { handle: "tech_quirk", url: "https://www.instagram.com/tech_quirk/", topic: "Mobile tech", cat: "Tech & AI", tags: ["Mobile", "Gadgets"] },
+  { handle: "thefrustratedindian", url: "https://www.instagram.com/thefrustratedindian/reels/", topic: "Round the Nation — social commentary", cat: "Infotainment", tags: ["Viral", "Social"] },
+  { handle: "portal.tradebrains", url: "https://www.instagram.com/portal.tradebrains/", topic: "Stock Reports & Analysis Platform", cat: "Finance", tags: ["Stocks", "Research"] },
+  { handle: "facts_trend", url: "https://www.instagram.com/facts_trend/", topic: "Interesting facts and knowledge", cat: "Infotainment", tags: ["Facts", "Viral"] },
+  { handle: "terraorganicshyd", url: "https://www.instagram.com/terraorganicshyd/", topic: "Exotic fruit plants", cat: "Agriculture", tags: ["Organic", "Plants", "Hyderabad"] },
+  { handle: "stockmarket.edges", url: "https://www.instagram.com/stockmarket.edges/", topic: "Stock Market Education & Research", cat: "Finance", tags: ["Stocks", "Education"] },
+  { handle: "businessmode.in", url: "https://www.instagram.com/businessmode.in/", topic: "Entrepreneurship — Business Ideas & Entrepreneurial stuff", cat: "Business", tags: ["Ideas", "Business"] },
+  { handle: "philosophy.of.science", url: "https://www.instagram.com/philosophy.of.science/reels/", topic: "Illusion, perception and philosophy of science", cat: "Infotainment", tags: ["Philosophy", "Science"] },
+  { handle: "fact_factory05", url: "https://www.instagram.com/fact_factory05/", topic: "\"Do you know\" facts", cat: "Infotainment", tags: ["Facts", "Education"] },
+  { handle: "moneyfactorytelugu1", url: "https://www.instagram.com/moneyfactorytelugu1/", topic: "Telugu Business Ideas, Business Tips", cat: "Local / Regional", tags: ["Telugu", "Business", "Money"] },
+  { handle: "manufacturersguide", url: "https://www.instagram.com/manufacturersguide/", topic: "Business and economy", cat: "Business", tags: ["Manufacturing", "Economy"] },
+  { handle: "appetizing.tv", url: "https://www.instagram.com/appetizing.tv/", topic: "Recipes — WOW food content", cat: "Lifestyle", tags: ["Food", "Recipes", "Viral"] },
+  { handle: "mythvsreality", url: "https://www.instagram.com/mythvsreality/", topic: "Myths vs Reality — daily interesting facts & videos", cat: "Infotainment", tags: ["Viral", "Facts", "Education"] },
+  { handle: "intend.marketing", url: "https://www.instagram.com/intend.marketing/", topic: "Informative viral content", cat: "Business", tags: ["Marketing", "Viral"] },
+  { handle: "dynamic_science", url: "https://www.instagram.com/dynamic_science/", topic: "Science, but make it cool!", cat: "Infotainment", tags: ["Science", "Gen Z"] },
+  { handle: "yourfoodlab", url: "https://www.instagram.com/yourfoodlab/", topic: "Food content", cat: "Lifestyle", tags: ["Food", "Recipes"] },
+  { handle: "dailyideasguy", url: "https://www.instagram.com/dailyideasguy/", topic: "Build your idea — daily business ideas", cat: "Business", tags: ["Ideas", "Startup"] },
+  { handle: "satyamtechinsights", url: "https://www.instagram.com/satyamtechinsights/", topic: "AI Marketing Expert — Learn & Grow", cat: "Tech & AI", tags: ["AI", "Marketing", "Growth"] },
+  { handle: "foundersinindia", url: "https://www.instagram.com/foundersinindia/", topic: "India's next unicorns start here", cat: "Business", tags: ["Unicorns", "Founders", "Startups"] },
+  { handle: "finographic", url: "https://www.instagram.com/finographic/", topic: "Finance infographics", cat: "Finance", tags: ["Infographics", "Finance"] },
+  { handle: "Jay Shetty", url: "#", topic: "Short life lessons, mindset clips, relationship wisdom", cat: "Lifestyle", tags: ["Mindset", "Motivation", "Viral"] },
+];
+
+const catColors = {
+  "Business": { bg: "rgba(245,166,35,0.12)", color: "#F5A623", cardAccent: "var(--accent1)", fill: "#F5A623" },
+  "Tech & AI": { bg: "rgba(78,205,196,0.12)", color: "#4ECDC4", cardAccent: "var(--accent2)", fill: "#4ECDC4" },
+  "Agriculture": { bg: "rgba(168,230,207,0.12)", color: "#A8E6CF", cardAccent: "var(--accent4)", fill: "#A8E6CF" },
+  "Finance": { bg: "rgba(255,217,61,0.12)", color: "#FFD93D", cardAccent: "var(--accent6)", fill: "#FFD93D" },
+  "Infotainment": { bg: "rgba(255,107,107,0.12)", color: "#FF6B6B", cardAccent: "var(--accent3)", fill: "#FF6B6B" },
+  "Lifestyle": { bg: "rgba(201,177,255,0.12)", color: "#C9B1FF", cardAccent: "var(--accent5)", fill: "#C9B1FF" },
+  "Local / Regional": { bg: "rgba(249,115,22,0.12)", color: "#F97316", cardAccent: "#F97316", fill: "#F97316" },
+};
+
+// Build cards
+const grid = document.getElementById('cards-grid');
+accounts.forEach(a => {
+  const cc = catColors[a.cat];
+  const card = document.createElement('div');
+  card.className = 'account-card';
+  card.style.setProperty('--card-accent', cc.fill);
+  card.dataset.cat = a.cat;
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-handle"><a href="${a.url}" target="_blank" rel="noopener">@${a.handle}</a></div>
+      <span class="card-cat" style="background:${cc.bg};color:${cc.color}">${a.cat}</span>
+    </div>
+    <div class="card-topic">${a.topic}</div>
+    <div class="card-footer">${a.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+  `;
+  grid.appendChild(card);
+});
+
+// Category bar chart
+const catCounts = {};
+accounts.forEach(a => { catCounts[a.cat] = (catCounts[a.cat] || 0) + 1; });
+const maxCount = Math.max(...Object.values(catCounts));
+const barsEl = document.getElementById('cat-bars');
+Object.entries(catCounts).sort((a,b) => b[1]-a[1]).forEach(([cat, count]) => {
+  const cc = catColors[cat];
+  barsEl.innerHTML += `
+    <div class="cat-bar-item" onclick="filterCat('${cat}')">
+      <div class="cat-bar-top">
+        <span class="cat-bar-name" style="color:${cc.color}">${cat}</span>
+        <span class="cat-bar-count">${count}</span>
+      </div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(count/maxCount*100).toFixed(0)}%;background:${cc.fill}"></div></div>
+    </div>`;
+});
+
+// Filter logic
+let activeCat = 'all';
+function filterCat(cat) {
+  activeCat = cat;
+  const cards = document.querySelectorAll('.account-card');
+  let visible = 0;
+  cards.forEach(c => {
+    const show = cat === 'all' || c.dataset.cat === cat;
+    c.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  document.getElementById('card-count').textContent = `${visible} account${visible !== 1 ? 's' : ''}`;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => filterCat(btn.dataset.cat));
+});
+
+// Tabs
+document.querySelectorAll('.strat-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.strat-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.strat-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

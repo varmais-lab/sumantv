@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Era Content Transformation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --ink: #0A0A0F;
+    --paper: #F2EFE8;
+    --accent: #FF3B1F;
+    --gold: #E8B84B;
+    --muted: #8B8680;
+    --slide-w: 900px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  #progress-rail {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    z-index: 100;
+  }
+  #progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ─── SLIDE COUNTER ─── */
+  #counter {
+    position: fixed;
+    top: 16px; right: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    z-index: 100;
+  }
+
+  /* ─── NAV DOTS ─── */
+  #nav-dots {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .dot.active {
+    background: var(--accent);
+    transform: scale(1.5);
+  }
+  .dot:hover { background: var(--paper); }
+
+  /* ─── SLIDE STAGE ─── */
+  #stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 80px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ─── SLIDE BASE ─── */
+  .slide {
+    position: absolute;
+    width: 100%;
+    max-width: var(--slide-w);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(40px);
+    transition: opacity 0.55s cubic-bezier(.4,0,.2,1),
+                transform 0.55s cubic-bezier(.4,0,.2,1);
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+    position: relative;
+  }
+  .slide.exit-up {
+    opacity: 0;
+    transform: translateY(-40px);
+    position: absolute;
+  }
+
+  /* ─── KEYBOARD HINT ─── */
+  #hint {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.2);
+    z-index: 100;
+  }
+
+  /* ─── PREV / NEXT BUTTONS ─── */
+  .nav-btn {
+    position: fixed;
+    bottom: 32px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--paper);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    z-index: 100;
+  }
+  #btn-prev { left: 40px; }
+  #btn-next { right: 60px; }
+  .nav-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .nav-btn:disabled { opacity: 0.2; cursor: default; }
+  .nav-btn:disabled:hover { background: transparent; border-color: rgba(255,255,255,0.15); }
+
+  /* ════════════════════════════════
+     SLIDE-SPECIFIC STYLES
+  ════════════════════════════════ */
+
+  /* SLIDE 1 — HERO */
+  .s1-bg {
+    background: var(--ink);
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .s1-bg::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,59,31,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .s1-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .s1-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 10vw, 110px);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+    margin-bottom: 32px;
+  }
+  .s1-title span { color: var(--accent); }
+  .s1-sub {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.7;
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+  }
+  .s1-deco {
+    position: absolute;
+    right: 0; bottom: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 180px;
+    line-height: 1;
+    color: rgba(255,255,255,0.03);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* SLIDE 2 — THE BIG SHIFT */
+  .s2-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 48px;
+  }
+  .slide-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .s2-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 68px;
+    color: var(--paper);
+    line-height: 1;
+  }
+  .shift-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+  }
+  .shift-from, .shift-to {
+    padding: 32px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+  }
+  .shift-from { background: rgba(255,255,255,0.03); }
+  .shift-to   { background: rgba(255,59,31,0.08); border-color: rgba(255,59,31,0.3); }
+  .shift-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .shift-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--paper);
+    line-height: 1.1;
+  }
+  .shift-to .shift-val { color: var(--accent); }
+  .shift-arrow {
+    font-size: 28px;
+    color: var(--gold);
+  }
+
+  /* SLIDE 3 — PLATFORM EVOLUTION */
+  .s3-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+  }
+  .era-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .era-item {
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+    padding: 28px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .era-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    line-height: 1;
+    color: rgba(255,255,255,0.06);
+    min-width: 60px;
+    text-align: right;
+  }
+  .era-body { flex: 1; }
+  .era-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .era-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--paper);
+  }
+  .era-item:first-child .era-num,
+  .era-item:first-child .era-name { opacity: 0.45; }
+  .era-item:nth-child(2) .era-num,
+  .era-item:nth-child(2) .era-name { opacity: 0.7; }
+
+  /* SLIDE 4 — NEW RULES */
+  .s4-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+  }
+  .rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .rule-card {
+    padding: 28px 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .rule-card:hover {
+    border-color: var(--accent);
+    background: rgba(255,59,31,0.05);
+  }
+  .rule-card::before {
+    content: attr(data-n);
+    position: absolute;
+    top: 12px; right: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+  }
+  .rule-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--paper);
+    line-height: 1.1;
+  }
+
+  /* SLIDE 5 — OPPORTUNITIES */
+  .opp-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 36px;
+  }
+  .opp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .opp-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 24px;
+    background: rgba(232,184,75,0.06);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 4px 4px 0;
+    transition: background 0.25s;
+  }
+  .opp-item:hover { background: rgba(232,184,75,0.12); }
+  .opp-icon { font-size: 22px; }
+  .opp-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--paper);
+    letter-spacing: 0.02em;
+  }
+
+  /* SLIDE 6 — THREATS */
+  .threat-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 36px;
+  }
+  .threat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .threat-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 24px;
+    background: rgba(255,59,31,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    transition: background 0.25s;
+  }
+  .threat-item:hover { background: rgba(255,59,31,0.1); }
+  .threat-icon { font-size: 22px; }
+  .threat-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--paper);
+    letter-spacing: 0.02em;
+  }
+
+  /* SLIDE 7 — SHORT FORM */
+  .sf-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+  }
+  .sf-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .sf-stat {
+    padding: 28px 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    text-align: center;
+  }
+  .sf-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .sf-stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .sf-quote {
+    padding: 28px 32px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.02);
+    font-size: 18px;
+    line-height: 1.7;
+    color: rgba(242,239,232,0.8);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* SLIDE 8 — AI ADVANTAGES */
+  .adv-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 36px;
+  }
+  .adv-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .adv-card {
+    padding: 24px 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+  }
+  .adv-card:hover {
+    border-color: var(--gold);
+    background: rgba(232,184,75,0.06);
+    transform: translateY(-4px);
+  }
+  .adv-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(232,184,75,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .adv-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: var(--paper);
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  /* SLIDE 9 — AI DISADVANTAGES */
+  .dis-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 36px;
+  }
+  .dis-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .dis-card {
+    padding: 28px 24px;
+    border: 1px solid rgba(255,59,31,0.2);
+    border-radius: 6px;
+    background: rgba(255,59,31,0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dis-icon { font-size: 28px; }
+  .dis-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--paper);
+  }
+  .dis-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* SLIDE 10 — WHAT WILL WIN */
+  .win-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .win-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 60% 50%, rgba(232,184,75,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .win-formula {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+  .win-term {
+    padding: 16px 24px;
+    border: 1px solid rgba(232,184,75,0.3);
+    border-radius: 4px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--paper);
+    background: rgba(232,184,75,0.06);
+    transition: all 0.25s;
+  }
+  .win-term:hover {
+    background: rgba(232,184,75,0.14);
+    border-color: var(--gold);
+  }
+  .win-plus {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--gold);
+  }
+
+  /* SLIDE 11 — STRATEGIC PRIORITIES */
+  .sp-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 36px;
+  }
+  .sp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sp-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    cursor: default;
+  }
+  .sp-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 28px;
+  }
+  .sp-icon { font-size: 20px; }
+  .sp-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--paper);
+    flex: 1;
+  }
+  .sp-arrow {
+    font-size: 18px;
+    color: rgba(255,255,255,0.15);
+    transition: color 0.2s;
+  }
+  .sp-item:hover .sp-arrow { color: var(--accent); }
+
+  /* SLIDE 12 — FINAL */
+  .fin-wrap {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .fin-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 60%, rgba(255,59,31,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .fin-msg {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.05;
+    color: var(--paper);
+  }
+  .fin-msg em {
+    color: var(--accent);
+    font-style: normal;
+  }
+  .fin-sub {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 500px;
+  }
+  .fin-tag {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 1px solid rgba(255,59,31,0.4);
+    border-radius: 2px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    align-self: flex-start;
+  }
+
+  /* ─── SHARED HEADING ─── */
+  .slide-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(44px, 6vw, 64px);
+    color: var(--paper);
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-rail"><div id="progress-fill"></div></div>
+<div id="counter">01 / 12</div>
+<div id="nav-dots"></div>
+<div id="hint">← → ARROW KEYS OR CLICK TO NAVIGATE</div>
+
+<button class="nav-btn" id="btn-prev" disabled>← PREV</button>
+<button class="nav-btn" id="btn-next">NEXT →</button>
+
+<div id="stage">
+
+  <!-- SLIDE 1 -->
+  <div class="slide active" data-index="0">
+    <div class="s1-bg">
+      <div class="s1-eyebrow">Team Presentation · AI Strategy</div>
+      <div class="s1-title">AI ERA<br>CONTENT<br><span>TRANSFORM</span></div>
+      <div class="s1-sub">How AI, Algorithms & Audience Behavior are Changing Media</div>
+      <div class="s1-deco">AI</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide" data-index="1">
+    <div class="s2-wrap">
+      <div class="slide-label">02 — The Context</div>
+      <div class="s2-heading">The Big Shift</div>
+      <div class="shift-row">
+        <div class="shift-from">
+          <div class="shift-tag">BEFORE</div>
+          <div class="shift-val">Content Creation</div>
+        </div>
+        <div class="shift-arrow">→</div>
+        <div class="shift-to">
+          <div class="shift-tag">NOW</div>
+          <div class="shift-val">Content Intelligence</div>
+        </div>
+      </div>
+      <div class="shift-row">
+        <div class="shift-from">
+          <div class="shift-tag">BEFORE</div>
+          <div class="shift-val">Creativity</div>
+        </div>
+        <div class="shift-arrow">→</div>
+        <div class="shift-to">
+          <div class="shift-tag">NOW</div>
+          <div class="shift-val">Distribution Power</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide" data-index="2">
+    <div class="s3-wrap">
+      <div class="slide-label">03 — Timeline</div>
+      <div class="slide-heading">Platform Evolution</div>
+      <div class="era-list">
+        <div class="era-item">
+          <div class="era-num">01</div>
+          <div class="era-body">
+            <div class="era-label">Phase One · Past</div>
+            <div class="era-name">Creator Friendly Era</div>
+          </div>
+        </div>
+        <div class="era-item">
+          <div class="era-num">02</div>
+          <div class="era-body">
+            <div class="era-label">Phase Two · Transition</div>
+            <div class="era-name">Platform Dominance Era</div>
+          </div>
+        </div>
+        <div class="era-item">
+          <div class="era-num">03</div>
+          <div class="era-body">
+            <div class="era-label">Phase Three · Now</div>
+            <div class="era-name">AI Controlled Attention Era</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide" data-index="3">
+    <div class="s4-wrap">
+      <div class="slide-label">04 — Framework</div>
+      <div class="slide-heading">The New Rules<br>of the Game</div>
+      <div class="rules-grid">
+        <div class="rule-card" data-n="01"><div class="rule-name">Speed Wins</div></div>
+        <div class="rule-card" data-n="02"><div class="rule-name">Multi-platform Distribution</div></div>
+        <div class="rule-card" data-n="03"><div class="rule-name">AI Assisted Creation</div></div>
+        <div class="rule-card" data-n="04"><div class="rule-name">Audience Retention &gt; Views</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide" data-index="4">
+    <div class="opp-wrap">
+      <div class="slide-label">05 — Upside</div>
+      <div class="slide-heading">Biggest Opportunities</div>
+      <div class="opp-list">
+        <div class="opp-item"><div class="opp-icon">♾️</div><div class="opp-text">Infinite Content Scaling</div></div>
+        <div class="opp-item"><div class="opp-icon">🌐</div><div class="opp-text">Multi-language Expansion</div></div>
+        <div class="opp-item"><div class="opp-icon">📊</div><div class="opp-text">AI Audience Analysis</div></div>
+        <div class="opp-item"><div class="opp-icon">⚡</div><div class="opp-text">Small Teams Beating Large Media Houses</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 -->
+  <div class="slide" data-index="5">
+    <div class="threat-wrap">
+      <div class="slide-label">06 — Risks</div>
+      <div class="slide-heading">Biggest Threats</div>
+      <div class="threat-list">
+        <div class="threat-item"><div class="threat-icon">🔗</div><div class="threat-text">Platform Dependency</div></div>
+        <div class="threat-item"><div class="threat-icon">🌊</div><div class="threat-text">AI Content Flood</div></div>
+        <div class="threat-item"><div class="threat-icon">📉</div><div class="threat-text">Attention Span Collapse</div></div>
+        <div class="threat-item"><div class="threat-icon">⚔️</div><div class="threat-text">Platforms Becoming Competitors</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 -->
+  <div class="slide" data-index="6">
+    <div class="sf-wrap">
+      <div class="slide-label">07 — Trend</div>
+      <div class="slide-heading">Short-Form Revolution</div>
+      <div class="sf-stat-row">
+        <div class="sf-stat"><div class="sf-stat-num">3×</div><div class="sf-stat-label">Higher engagement vs long-form</div></div>
+        <div class="sf-stat"><div class="sf-stat-num">8s</div><div class="sf-stat-label">Average modern attention window</div></div>
+        <div class="sf-stat"><div class="sf-stat-num">70%</div><div class="sf-stat-label">Content consumed as short-form</div></div>
+      </div>
+      <div class="sf-quote">
+        Short-form content dominates attention. Hooks, retention & emotional stimulation drive reach.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8 -->
+  <div class="slide" data-index="7">
+    <div class="adv-wrap">
+      <div class="slide-label">08 — Leverage</div>
+      <div class="slide-heading">AI Advantages</div>
+      <div class="adv-grid">
+        <div class="adv-card"><div class="adv-icon">⚡</div><div class="adv-text">Faster Production</div></div>
+        <div class="adv-card"><div class="adv-icon">💰</div><div class="adv-text">Lower Costs</div></div>
+        <div class="adv-card"><div class="adv-icon">🔍</div><div class="adv-text">Better Insights</div></div>
+        <div class="adv-card"><div class="adv-icon">🎯</div><div class="adv-text">Personalized Content</div></div>
+        <div class="adv-card"><div class="adv-icon">🔄</div><div class="adv-text">24/7 Ecosystems</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9 -->
+  <div class="slide" data-index="8">
+    <div class="dis-wrap">
+      <div class="slide-label">09 — Caution</div>
+      <div class="slide-heading">AI Disadvantages</div>
+      <div class="dis-grid">
+        <div class="dis-card">
+          <div class="dis-icon">🌊</div>
+          <div class="dis-name">Content Saturation</div>
+          <div class="dis-desc">More AI content floods every channel, making differentiation harder.</div>
+        </div>
+        <div class="dis-card">
+          <div class="dis-icon">🪞</div>
+          <div class="dis-name">Reduced Originality</div>
+          <div class="dis-desc">Over-reliance on AI tools erodes distinctive creative voices.</div>
+        </div>
+        <div class="dis-card">
+          <div class="dis-icon">💔</div>
+          <div class="dis-name">Emotional Disconnect</div>
+          <div class="dis-desc">Automated content lacks authentic human connection.</div>
+        </div>
+        <div class="dis-card">
+          <div class="dis-icon">⛓️</div>
+          <div class="dis-name">Algorithm Dependency</div>
+          <div class="dis-desc">Platforms can shift rules at any time, disrupting reach overnight.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10 -->
+  <div class="slide" data-index="9">
+    <div class="win-wrap">
+      <div class="slide-label">10 — The Answer</div>
+      <div class="slide-heading">What Will Win?</div>
+      <div class="win-formula">
+        <div class="win-term">Human Psychology</div>
+        <div class="win-plus">+</div>
+        <div class="win-term">AI</div>
+        <div class="win-plus">+</div>
+        <div class="win-term">Distribution Intelligence</div>
+        <div class="win-plus">+</div>
+        <div class="win-term">Authenticity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11 -->
+  <div class="slide" data-index="10">
+    <div class="sp-wrap">
+      <div class="slide-label">11 — Action Plan</div>
+      <div class="slide-heading">Our Strategic Priorities</div>
+      <div class="sp-list">
+        <div class="sp-item">
+          <div class="sp-num">01</div>
+          <div class="sp-icon">🤖</div>
+          <div class="sp-name">AI Workflows</div>
+          <div class="sp-arrow">→</div>
+        </div>
+        <div class="sp-item">
+          <div class="sp-num">02</div>
+          <div class="sp-icon">📡</div>
+          <div class="sp-name">Cross-platform Publishing</div>
+          <div class="sp-arrow">→</div>
+        </div>
+        <div class="sp-item">
+          <div class="sp-num">03</div>
+          <div class="sp-icon">🌏</div>
+          <div class="sp-name">Regional Language Expansion</div>
+          <div class="sp-arrow">→</div>
+        </div>
+        <div class="sp-item">
+          <div class="sp-num">04</div>
+          <div class="sp-icon">🤝</div>
+          <div class="sp-name">Community Building</div>
+          <div class="sp-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12 -->
+  <div class="slide" data-index="11">
+    <div class="fin-wrap">
+      <div class="slide-label">12 — Closing</div>
+      <div class="fin-msg">
+        The future belongs to teams<br>
+        that create <em>SYSTEMS</em>,<br>
+        not just content.
+      </div>
+      <div class="fin-sub">
+        Build repeatable processes. Leverage AI as infrastructure. Stay human where it counts.
+      </div>
+      <div class="fin-tag">AI ERA CONTENT STRATEGY</div>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let animating = false;
+
+  const counter = document.getElementById('counter');
+  const fill = document.getElementById('progress-fill');
+  const dotsContainer = document.getElementById('nav-dots');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateUI() {
+    counter.textContent = `${pad(current + 1)} / ${pad(total)}`;
+    fill.style.width = `${((current + 1) / total) * 100}%`;
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  function goTo(next) {
+    if (animating || next === current || next < 0 || next >= total) return;
+    animating = true;
+
+    const prev = slides[current];
+    const target = slides[next];
+
+    prev.classList.remove('active');
+    prev.classList.add('exit-up');
+
+    target.style.transform = next > current ? 'translateY(40px)' : 'translateY(-40px)';
+    target.style.opacity = '0';
+    target.style.position = 'relative';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        target.classList.add('active');
+        target.style.transform = '';
+        target.style.opacity = '';
+        target.style.position = '';
+
+        setTimeout(() => {
+          prev.classList.remove('exit-up');
+          prev.style.position = '';
+          animating = false;
+        }, 600);
+      });
+    });
+
+    current = next;
+    updateUI();
+  }
+
+  btnPrev.addEventListener('click', () => goTo(current - 1));
+  btnNext.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(current - 1);
+  });
+
+  // Touch / swipe
+  let touchStart = null;
+  document.addEventListener('touchstart', e => { touchStart = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    if (touchStart === null) return;
+    const dx = e.changedTouches[0].clientX - touchStart;
+    if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
+    touchStart = null;
+  });
+
+  updateUI();
+</script>
+</body>
+</html>

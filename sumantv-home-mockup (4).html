@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SumanTV — Network Home (UI Mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Telugu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15121A; --ink-soft:#3A343F; --paper:#FBFAF7; --paper-2:#F2EEE6;
+    --line:#E5DFD4; --muted:#756F7B; --white:#fff;
+    --signal:#E5302A; --signal-deep:#B61E1C;
+    /* category color-coding system */
+    --c-news:#E5302A; --c-sports:#1390A3; --c-business:#C4831A; --c-health:#11976B;
+    --c-ent:#E0641B; --c-devotion:#C0492A; --c-women:#C03C8E; --c-agri:#5C8526;
+    --c-ai:#6B4AD1; --c-tech:#2D63CE;
+    --r:14px; --r-sm:9px;
+    --shadow:0 1px 2px rgba(21,18,26,.05), 0 10px 26px -14px rgba(21,18,26,.22);
+    --maxw:1240px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif; font-size:16px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px;}
+  .mono{font-family:"IBM Plex Mono",monospace;}
+  .disp{font-family:"Bricolage Grotesque",sans-serif;}
+  .tel{font-family:"Noto Sans Telugu","Inter",sans-serif;}
+  h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif; margin:0; line-height:1.04; letter-spacing:-.01em;}
+  :focus-visible{outline:3px solid var(--signal); outline-offset:2px; border-radius:4px;}
+
+  /* ---------- UTILITY BAR ---------- */
+  .util{background:var(--ink); color:#EDE9E2; font-size:12.5px;}
+  .util .wrap{display:flex; align-items:center; gap:18px; height:38px;}
+  .langs{display:flex; align-items:center; gap:2px;}
+  .lang{padding:4px 9px; border-radius:20px; color:#CDC7BE; font-weight:500; cursor:pointer; border:none; background:none; font-size:13px;}
+  .lang.tel{font-size:14px;}
+  .lang[aria-current="true"]{background:var(--signal); color:#fff;}
+  .lang:hover{color:#fff;}
+  .util .spacer{flex:1;}
+  .util .uitem{color:#B7B1A8; letter-spacing:.02em;}
+  .util .uitem b{color:#EDE9E2; font-weight:600;}
+  .util-sign{display:none;}
+  @media(min-width:760px){.util-sign{display:inline;}}
+
+  /* ---------- MASTHEAD ---------- */
+  .mast{position:sticky; top:0; z-index:60; background:rgba(251,250,247,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .mast .wrap{display:flex; align-items:center; gap:20px; height:66px;}
+  .brand{display:flex; align-items:center; gap:11px;}
+  .bug{width:34px; height:34px; border-radius:8px; background:var(--signal); position:relative; flex:none; box-shadow:0 4px 12px -4px rgba(229,48,42,.6);}
+  .bug::before{content:""; position:absolute; inset:0; border-radius:8px; background:linear-gradient(150deg,#FF5A4F, #C4221C);}
+  .bug::after{content:"S"; position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-family:"Bricolage Grotesque"; font-weight:800; font-size:21px;}
+  .brand .name{font-family:"Bricolage Grotesque"; font-weight:800; font-size:23px; letter-spacing:-.02em;}
+  .brand .name .tv{color:var(--signal);}
+  .brand .tag{display:block; font-size:9.5px; letter-spacing:.22em; color:var(--muted); font-weight:600; margin-top:1px; text-transform:uppercase;}
+  .mast .spacer{flex:1;}
+  .search{display:none; align-items:center; gap:8px; background:var(--white); border:1px solid var(--line); border-radius:24px; padding:8px 14px; min-width:230px; color:var(--muted);}
+  .search input{border:none; background:none; outline:none; font-family:inherit; font-size:14px; width:100%; color:var(--ink);}
+  @media(min-width:980px){.search{display:flex;}}
+  .btn{font-family:"Inter"; font-weight:600; font-size:14px; border-radius:24px; padding:9px 18px; cursor:pointer; border:1px solid transparent; white-space:nowrap;}
+  .btn-ghost{background:none; color:var(--ink); border-color:var(--line);}
+  .btn-ghost:hover{background:var(--paper-2);}
+  .btn-join{background:var(--ink); color:#fff;}
+  .btn-join:hover{background:#000;}
+  .signin{display:none;}
+  @media(min-width:640px){.signin{display:inline-block;}}
+
+  /* ---------- CATEGORY NAV ---------- */
+  .catnav{background:var(--white); border-bottom:1px solid var(--line); position:sticky; top:66px; z-index:55;}
+  .catnav .wrap{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none;}
+  .catnav .wrap::-webkit-scrollbar{display:none;}
+  .cat{--c:var(--ink); display:flex; align-items:center; gap:7px; padding:13px 13px; font-size:14px; font-weight:600; color:var(--ink-soft); white-space:nowrap; border-bottom:3px solid transparent; position:relative;}
+  .cat .dot{width:7px; height:7px; border-radius:50%; background:var(--c);}
+  .cat:hover{color:var(--c); border-bottom-color:var(--c);}
+  .cat[aria-current="true"]{color:var(--c); border-bottom-color:var(--c);}
+
+  /* ---------- TICKER ---------- */
+  .ticker{background:var(--ink); color:#F3EFE8; overflow:hidden; display:flex; align-items:stretch; height:42px;}
+  .ticker .live{background:var(--signal); color:#fff; display:flex; align-items:center; gap:8px; padding:0 16px; font-family:"IBM Plex Mono"; font-weight:600; font-size:12.5px; letter-spacing:.06em; flex:none; z-index:2;}
+  .pulse{width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 0 0 rgba(255,255,255,.7); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6);}70%{box-shadow:0 0 0 7px rgba(255,255,255,0);}100%{box-shadow:0 0 0 0 rgba(255,255,255,0);}}
+  .track-wrap{flex:1; overflow:hidden; position:relative; display:flex; align-items:center;}
+  .track{display:flex; gap:34px; white-space:nowrap; padding-left:24px; animation:scroll 38s linear infinite; will-change:transform;}
+  .track-wrap:hover .track{animation-play-state:paused;}
+  .tk{display:inline-flex; align-items:center; gap:10px; font-size:13.5px; color:#E4DFD7;}
+  .tk .tag{font-family:"IBM Plex Mono"; font-size:10.5px; font-weight:600; letter-spacing:.05em; padding:2px 7px; border-radius:4px; color:#fff;}
+  @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  /* ---------- HERO ---------- */
+  section{padding:38px 0;}
+  .hero-grid{display:grid; grid-template-columns:1fr; gap:18px;}
+  @media(min-width:900px){.hero-grid{grid-template-columns:1.62fr 1fr; gap:24px;}}
+
+  .lead{position:relative; border-radius:var(--r); overflow:hidden; background:var(--ink); color:#fff; min-height:380px; display:flex; flex-direction:column; justify-content:flex-end; box-shadow:var(--shadow);}
+  .lead .thumb{position:absolute; inset:0; background:
+     radial-gradient(120% 90% at 80% 0%, rgba(229,48,42,.34), transparent 55%),
+     linear-gradient(200deg,#2C2533, #14111A 70%);}
+  .lead .thumb::after{content:""; position:absolute; inset:0; background:linear-gradient(transparent 30%, rgba(10,8,12,.86));}
+  .lead .scan{position:absolute; inset:0; opacity:.10; background-image:repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 4px);}
+  .lead .body{position:relative; padding:26px;}
+  .chip{display:inline-flex; align-items:center; gap:7px; font-family:"IBM Plex Mono"; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:5px 10px; border-radius:6px; background:var(--c-news); color:#fff;}
+  .lead h1{font-size:clamp(27px,3.6vw,42px); font-weight:800; margin:14px 0 12px; max-width:18ch;}
+  .qa{background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); border-left:3px solid var(--signal); border-radius:10px; padding:12px 14px; max-width:54ch; backdrop-filter:blur(2px);}
+  .qa .qlabel{font-family:"IBM Plex Mono"; font-size:10.5px; letter-spacing:.1em; color:#FFB7B3; font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:5px;}
+  .qa p{margin:0; font-size:14.5px; color:#F1ECE6; line-height:1.45;}
+  .lead .meta{display:flex; align-items:center; gap:14px; margin-top:16px; font-size:13px; color:#CFC8C0;}
+  .vchip{display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.2); padding:4px 9px; border-radius:20px; font-family:"IBM Plex Mono"; font-size:12px;}
+  .play{position:absolute; top:20px; right:20px; width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); display:grid; place-items:center; backdrop-filter:blur(4px);}
+  .play svg{margin-left:3px;}
+
+  /* live-now side stack */
+  .sidecard{background:var(--white); border:1px solid var(--line); border-radius:var(--r); padding:6px; box-shadow:var(--shadow);}
+  .side-h{display:flex; align-items:center; justify-content:space-between; padding:12px 12px 9px;}
+  .side-h .t{font-family:"Bricolage Grotesque"; font-weight:700; font-size:14.5px; letter-spacing:.01em;}
+  .side-h .more{font-size:12px; color:var(--muted); font-weight:600;}
+  .row{display:flex; gap:12px; padding:10px 12px; border-radius:10px; align-items:center;}
+  .row:hover{background:var(--paper-2);}
+  .row + .row{border-top:1px solid var(--line);}
+  .rthumb{width:74px; height:50px; border-radius:7px; flex:none; position:relative; overflow:hidden;}
+  .rthumb .d{position:absolute; bottom:3px; right:3px; font-family:"IBM Plex Mono"; font-size:9.5px; background:rgba(0,0,0,.72); color:#fff; padding:1px 4px; border-radius:3px;}
+  .row .rtitle{font-size:13.4px; font-weight:600; line-height:1.28; color:var(--ink);}
+  .row .rmeta{font-size:11.5px; color:var(--muted); margin-top:3px; display:flex; gap:8px; align-items:center;}
+  .ctag{font-family:"IBM Plex Mono"; font-size:9.5px; font-weight:600; padding:1px 6px; border-radius:4px; color:#fff; letter-spacing:.03em;}
+
+  /* ---------- NETWORK READOUT (compact bar) ---------- */
+  .readout{background:var(--ink); border-radius:12px; margin-top:10px; padding:11px 18px; display:flex; align-items:center; gap:9px 22px; flex-wrap:wrap; font-family:"IBM Plex Mono";}
+  .readout .rd-head{display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:.12em; color:#9C95A2; padding-right:16px; border-right:1px solid rgba(255,255,255,.16);}
+  .readout .rd-head .pulse{background:#43E08A;}
+  .readout .rstat{font-size:13px; color:#B0AAB6; white-space:nowrap;}
+  .readout .rstat b{font-family:"Bricolage Grotesque"; color:#fff; font-size:17px; font-weight:800; margin-right:5px;}
+  .readout .rstat b span{color:var(--signal); font-size:.7em;}
+
+  /* ---------- SECTION HEADER ---------- */
+  .sec-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px;}
+  .eyebrow{display:flex; align-items:center; gap:9px; font-family:"IBM Plex Mono"; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;}
+  .eyebrow .bar{width:26px; height:3px; border-radius:2px; background:var(--c-health);}
+  .sec-head h2{font-size:clamp(24px,3vw,32px); font-weight:800;}
+  .sec-head p{margin:7px 0 0; color:var(--muted); font-size:14.5px; max-width:52ch;}
+  .sec-link{font-size:13.5px; font-weight:600; color:var(--ink); display:inline-flex; gap:6px; align-items:center; white-space:nowrap;}
+  .sec-link:hover{color:var(--c-health);}
+
+  /* ---------- CONTENT CARDS ---------- */
+  .cards{display:grid; grid-template-columns:1fr; gap:18px;}
+  @media(min-width:620px){.cards{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:980px){.cards{grid-template-columns:repeat(3,1fr);}}
+  .card{background:var(--white); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column; transition:transform .18s ease, box-shadow .18s ease;}
+  .card:hover{transform:translateY(-3px); box-shadow:0 1px 2px rgba(21,18,26,.05), 0 22px 38px -20px rgba(21,18,26,.32);}
+  .card .media{position:relative; aspect-ratio:16/10; overflow:hidden;}
+  .card .media .grad{position:absolute; inset:0;}
+  .card .media .pat{position:absolute; inset:0; opacity:.16; background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0); background-size:13px 13px;}
+  .card .media .ico{position:absolute; inset:0; display:grid; place-items:center; opacity:.9;}
+  .card .media .dur{position:absolute; bottom:9px; right:9px; font-family:"IBM Plex Mono"; font-size:11px; background:rgba(0,0,0,.74); color:#fff; padding:2px 7px; border-radius:5px;}
+  .card .media .cattag{position:absolute; top:9px; left:9px;}
+  .card .pad{padding:15px 16px 16px; display:flex; flex-direction:column; gap:0; flex:1;}
+  .card h3{font-size:17px; font-weight:700; line-height:1.2; letter-spacing:-.01em;}
+  .card .qa-row{margin-top:11px; display:flex; gap:8px; align-items:flex-start; background:var(--paper-2); border-radius:9px; padding:9px 11px;}
+  .card .qa-row .qi{flex:none; color:var(--c-health); margin-top:1px;}
+  .card .qa-row p{margin:0; font-size:12.8px; color:var(--ink-soft); line-height:1.4;}
+  .card .author{margin-top:auto; padding-top:13px; display:flex; align-items:center; gap:9px;}
+  .av{width:30px; height:30px; border-radius:50%; flex:none; display:grid; place-items:center; color:#fff; font-weight:700; font-size:12px; font-family:"Bricolage Grotesque";}
+  .author .nm{font-size:12.6px; font-weight:600; display:flex; align-items:center; gap:5px;}
+  .verify{display:inline-flex; align-items:center; gap:3px; color:var(--c-health); font-size:10.5px; font-weight:600; font-family:"IBM Plex Mono";}
+  .author .rl{font-size:11px; color:var(--muted);}
+
+  /* ---------- CATEGORY TOP-ARTICLE BLOCKS ---------- */
+  .cb-grid{display:grid; grid-template-columns:1fr; gap:20px;}
+  @media(min-width:860px){.cb-grid{grid-template-columns:1.08fr 1fr; gap:30px;}}
+  .feature{border:1px solid var(--line); background:var(--white); border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); transition:transform .18s ease, box-shadow .18s ease;}
+  .feature:hover{transform:translateY(-3px); box-shadow:0 1px 2px rgba(21,18,26,.05),0 22px 38px -20px rgba(21,18,26,.3);}
+  .feature .media{position:relative; aspect-ratio:16/9; overflow:hidden;}
+  .feature .media .grad{position:absolute; inset:0;}
+  .feature .media .pat{position:absolute; inset:0; opacity:.16; background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0); background-size:13px 13px;}
+  .feature .media .cattag{position:absolute; top:10px; left:10px;}
+  .feature .media .dur{position:absolute; bottom:10px; right:10px; font-family:"IBM Plex Mono"; font-size:11px; background:rgba(0,0,0,.74); color:#fff; padding:2px 7px; border-radius:5px;}
+  .feature .fpad{padding:16px 18px 18px;}
+  .feature h3{font-size:20px; font-weight:800; line-height:1.16; letter-spacing:-.01em;}
+  .feature .fmeta{font-family:"IBM Plex Mono"; font-size:12px; color:var(--muted); margin-top:10px; display:flex; gap:10px;}
+  .flist{display:flex; flex-direction:column; --c:var(--ink);}
+  .fitem{display:flex; gap:14px; padding:13px 2px; border-top:1px solid var(--line); align-items:flex-start;}
+  .fitem:first-child{border-top:none; padding-top:2px;}
+  .fitem .rank{font-family:"IBM Plex Mono"; font-weight:600; font-size:13px; color:var(--c); min-width:22px; padding-top:2px;}
+  .fitem .fh{font-size:15px; font-weight:600; line-height:1.3; color:var(--ink);}
+  .fitem:hover .fh{color:var(--c);}
+  .fitem .fmeta2{font-family:"IBM Plex Mono"; font-size:11px; color:var(--muted); margin-top:4px;}
+
+  /* ---------- COMMUNITIES ---------- */
+  .comm{background:var(--paper-2);}
+  .chgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  @media(min-width:680px){.chgrid{grid-template-columns:repeat(3,1fr);}}
+  @media(min-width:1000px){.chgrid{grid-template-columns:repeat(5,1fr);}}
+  .ch{--c:var(--c-news); background:var(--white); border:1px solid var(--line); border-radius:12px; padding:15px; position:relative; overflow:hidden; transition:transform .16s ease;}
+  .ch:hover{transform:translateY(-3px);}
+  .ch::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--c);}
+  .ch .ci{width:38px; height:38px; border-radius:9px; display:grid; place-items:center; color:#fff; background:var(--c); margin-bottom:11px;}
+  .ch .cn{font-family:"Bricolage Grotesque"; font-weight:700; font-size:16px;}
+  .ch .cs{font-size:11.5px; color:var(--muted); margin-top:2px; min-height:15px;}
+  .ch .cmembers{font-family:"IBM Plex Mono"; font-size:12px; font-weight:600; color:var(--ink); margin-top:11px; display:flex; align-items:center; gap:6px;}
+  .ch .cmembers .d{width:6px; height:6px; border-radius:50%; background:var(--c);}
+  .ch .cjoin{margin-top:11px; width:100%; border:1px solid var(--line); background:var(--paper); border-radius:8px; padding:7px; font-weight:600; font-size:13px; cursor:pointer; color:var(--ink); font-family:"Inter";}
+  .ch .cjoin:hover{background:var(--c); color:#fff; border-color:var(--c);}
+
+  /* ---------- DEALS / DEMAND ---------- */
+  .deal-card{background:var(--ink); color:#fff; border-radius:var(--r); overflow:hidden; display:grid; grid-template-columns:1fr; box-shadow:var(--shadow);}
+  @media(min-width:840px){.deal-card{grid-template-columns:.85fr 1.15fr;}}
+  .deal-vis{position:relative; min-height:230px; background:
+     radial-gradient(110% 80% at 20% 10%, rgba(92,133,38,.5), transparent 55%),
+     linear-gradient(160deg,#27241B,#15130E); padding:24px; display:flex; flex-direction:column; justify-content:space-between;}
+  .deal-vis .agtag{align-self:flex-start;}
+  .deal-vis .pic{font-size:64px; line-height:1; filter:saturate(1.1);}
+  .deal-vis .pname{font-family:"Bricolage Grotesque"; font-weight:700; font-size:21px;}
+  .deal-vis .psub{font-size:13px; color:#C9C3B8; margin-top:3px;}
+  .deal-body{padding:24px;}
+  .deal-body .dh{font-family:"IBM Plex Mono"; font-size:11px; letter-spacing:.1em; color:#9C95A2; display:flex; align-items:center; gap:8px;}
+  .deal-body h3{font-size:22px; font-weight:800; margin:11px 0 6px; max-width:22ch;}
+  .deal-body .lede{color:#C7C1CA; font-size:13.5px; margin:0 0 18px; max-width:46ch;}
+  .price{display:flex; align-items:baseline; gap:12px; margin-bottom:14px;}
+  .price .grp{font-family:"Bricolage Grotesque"; font-weight:800; font-size:34px; color:#fff;}
+  .price .grp span{color:#43E08A; font-size:.5em; font-family:"IBM Plex Mono"; vertical-align:middle; margin-left:6px;}
+  .price .was{color:#8E8894; text-decoration:line-through; font-size:17px;}
+  .price .off{margin-left:auto; background:#43E08A; color:#0C2417; font-family:"IBM Plex Mono"; font-weight:600; font-size:13px; padding:4px 9px; border-radius:6px;}
+  .prog{height:10px; border-radius:6px; background:rgba(255,255,255,.12); overflow:hidden;}
+  .prog .fill{height:100%; width:83%; background:linear-gradient(90deg,#5C8526,#43E08A); border-radius:6px;}
+  .prog-meta{display:flex; justify-content:space-between; font-size:12px; color:#BDB7C0; margin-top:9px; font-family:"IBM Plex Mono";}
+  .prog-meta b{color:#fff;}
+  .deal-cta{display:flex; gap:11px; margin-top:20px; flex-wrap:wrap;}
+  .deal-cta .b1{background:var(--signal); color:#fff; border:none; border-radius:24px; padding:11px 22px; font-weight:600; font-size:14.5px; cursor:pointer; font-family:"Inter";}
+  .deal-cta .b1:hover{background:#FF433C;}
+  .deal-cta .b2{background:none; color:#fff; border:1px solid rgba(255,255,255,.28); border-radius:24px; padding:11px 20px; font-weight:600; font-size:14.5px; cursor:pointer; font-family:"Inter";}
+  .deal-note{font-size:12px; color:#8E8894; margin-top:14px;}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink); color:#C9C3BC; padding:46px 0 28px; margin-top:10px;}
+  .fgrid{display:grid; grid-template-columns:1fr; gap:30px;}
+  @media(min-width:760px){.fgrid{grid-template-columns:1.6fr 1fr 1fr 1fr;}}
+  footer .name{font-family:"Bricolage Grotesque"; font-weight:800; font-size:22px; color:#fff;}
+  footer .name .tv{color:var(--signal);}
+  footer .blurb{font-size:13px; color:#9A948D; margin:12px 0 16px; max-width:34ch;}
+  .flangs{display:flex; gap:8px; flex-wrap:wrap;}
+  .flangs span{font-size:12.5px; border:1px solid rgba(255,255,255,.16); padding:4px 11px; border-radius:20px;}
+  .fcol h4{font-family:"IBM Plex Mono"; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:#7E7882; margin:0 0 13px;}
+  .fcol a{display:block; font-size:13.5px; color:#C9C3BC; padding:5px 0;}
+  .fcol a:hover{color:#fff;}
+  .fbottom{border-top:1px solid rgba(255,255,255,.1); margin-top:34px; padding-top:18px; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; font-size:12px; color:#7E7882;}
+
+  .note-banner{background:#FFF6E9; border-bottom:1px solid #F0E2C7; color:#7A5B1E; font-size:12.5px;}
+  .note-banner .wrap{padding:8px 22px; display:flex; gap:8px; align-items:center; justify-content:center; text-align:center;}
+
+  @media (prefers-reduced-motion: reduce){
+    .track{animation:none; padding-left:24px;}
+    .pulse{animation:none;}
+    *{scroll-behavior:auto;}
+  }
+
+  /* ---------- AD SLOTS ---------- */
+  .ad-section{padding:14px 0;}
+  .adunit{display:flex; flex-direction:column; align-items:center; gap:7px;}
+  .adunit .adlabel{font-family:"IBM Plex Mono"; font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:#B0A99F;}
+  .adbox{width:100%; border:1px dashed #D8D1C5; border-radius:12px; background:#F5F1E8; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; text-align:center; padding:18px; color:var(--muted);}
+  .adbox .adbug{width:24px; height:24px; border-radius:7px; background:linear-gradient(150deg,#FF5A4F,#C4221C); margin-bottom:3px;}
+  .adbox .ad-cta{font-family:"Bricolage Grotesque"; font-weight:700; font-size:15px; color:#5A5048;}
+  .adbox .size{font-family:"IBM Plex Mono"; font-size:11.5px; color:#9A9388;}
+  .ad-leaderboard .adbox{min-height:100px;}
+  .ad-mpu{padding:12px 12px 14px;}
+  .ad-mpu .adbox{min-height:230px;}
+  .sponsored{border:1px solid var(--line); background:var(--white); border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); display:grid; grid-template-columns:1fr;}
+  @media(min-width:760px){.sponsored{grid-template-columns:.82fr 1.18fr;}}
+  .sponsored .smedia{position:relative; min-height:170px; background:linear-gradient(150deg,#27384c,#15212e); display:grid; place-items:center;}
+  .sponsored .smedia .slogo{font-family:"Bricolage Grotesque"; font-weight:800; color:#fff; font-size:24px; opacity:.92; letter-spacing:.02em;}
+  .sponsored .spad{padding:20px 22px;}
+  .sponsored .stag{display:inline-flex; align-items:center; gap:7px; font-family:"IBM Plex Mono"; font-size:10px; letter-spacing:.1em; font-weight:600; color:#9A7A22; background:#FBF3DA; border:1px solid #EFE2B8; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
+  .sponsored h3{font-size:20px; font-weight:800; margin:12px 0 7px; line-height:1.16;}
+  .sponsored p{font-size:13.5px; color:var(--muted); margin:0 0 16px; max-width:48ch;}
+  .sponsored .sbtn{display:inline-block; background:var(--ink); color:#fff; border:none; border-radius:22px; padding:9px 18px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:"Inter";}
+  .sponsored .sbtn:hover{background:#000;}
+  /* ---------- THUMB GRID (4-up) ---------- */
+  .thumbgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px 16px;}
+  @media(min-width:760px){.thumbgrid{grid-template-columns:repeat(4,1fr);}}
+  .thumbcard{display:block;}
+  .thumbcard .tmedia{position:relative; aspect-ratio:16/10; border-radius:11px; overflow:hidden; box-shadow:var(--shadow); transition:transform .18s ease;}
+  .thumbcard:hover .tmedia{transform:translateY(-3px);}
+  .thumbcard .tmedia .grad{position:absolute; inset:0;}
+  .thumbcard .tmedia .pat{position:absolute; inset:0; opacity:.16; background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0); background-size:13px 13px;}
+  .thumbcard .tmedia .cattag{position:absolute; top:8px; left:8px;}
+  .thumbcard .tmedia .dur{position:absolute; bottom:8px; right:8px; font-family:"IBM Plex Mono"; font-size:10.5px; background:rgba(0,0,0,.74); color:#fff; padding:2px 6px; border-radius:4px;}
+  .thumbcard .ttitle{font-weight:600; font-size:14.5px; line-height:1.3; margin-top:11px; color:var(--ink); letter-spacing:-.005em;}
+  .thumbcard:hover .ttitle{color:var(--signal);}
+  .thumbcard .tmeta{font-family:"IBM Plex Mono"; font-size:11px; color:var(--muted); margin-top:5px;}
+  .ad-billboard .adbox{min-height:150px;}
+  /* sidebar ad that fills the empty space beside a tall feature */
+  .adunit.ad-rail{flex:1 1 auto; margin-top:18px;}
+  .ad-rail .adbox{flex:1 1 auto; min-height:200px; width:100%;}
+</style>
+</head>
+<body>
+
+<div class="note-banner"><div class="wrap">Static UI mockup — links and buttons are illustrative. Sample content for design only.</div></div>
+
+<!-- UTILITY BAR -->
+<div class="util"><div class="wrap">
+  <div class="langs" role="group" aria-label="Language">
+    <button class="lang tel" aria-current="true">తెలుగు</button>
+    <button class="lang tel">தமிழ்</button>
+    <button class="lang tel">ಕನ್ನಡ</button>
+    <button class="lang tel">हिन्दी</button>
+    <button class="lang">EN</button>
+  </div>
+  <span class="spacer"></span>
+  <span class="uitem util-sign">Monday, 15 June 2026 · Hyderabad</span>
+  <span class="uitem"><b>11 Cr+</b> community</span>
+</div></div>
+
+<!-- MASTHEAD -->
+<header class="mast"><div class="wrap">
+  <a class="brand" href="#" aria-label="SumanTV home">
+    <span class="bug" aria-hidden="true"></span>
+    <span><span class="name">Suman<span class="tv">TV</span></span><span class="tag">Digital Media Network</span></span>
+  </a>
+  <span class="spacer"></span>
+  <label class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input placeholder="Search stories, videos, doctors…" aria-label="Search" />
+  </label>
+  <button class="btn btn-ghost signin">Sign in</button>
+  <button class="btn btn-join">Join free</button>
+</div></header>
+
+<!-- CATEGORY NAV (color-coded) -->
+<nav class="catnav" aria-label="Categories"><div class="wrap">
+  <a class="cat" style="--c:var(--c-news)" aria-current="true" href="#"><span class="dot"></span>News</a>
+  <a class="cat" style="--c:var(--c-sports)" href="#"><span class="dot"></span>Sports</a>
+  <a class="cat" style="--c:var(--c-business)" href="#"><span class="dot"></span>Business</a>
+  <a class="cat" style="--c:var(--c-health)" href="#health"><span class="dot"></span>Health</a>
+  <a class="cat" style="--c:var(--c-ent)" href="#"><span class="dot"></span>Entertainment</a>
+  <a class="cat" style="--c:var(--c-devotion)" href="#"><span class="dot"></span>Devotion</a>
+  <a class="cat" style="--c:var(--c-women)" href="#"><span class="dot"></span>Women</a>
+  <a class="cat" style="--c:var(--c-agri)" href="#"><span class="dot"></span>Agriculture</a>
+  <a class="cat" style="--c:var(--c-ai)" href="#"><span class="dot"></span>AI</a>
+  <a class="cat" style="--c:var(--c-tech)" href="#"><span class="dot"></span>Technology</a>
+</div></nav>
+
+<!-- TICKER -->
+<div class="ticker" aria-label="Breaking and trending">
+  <div class="live"><span class="pulse" aria-hidden="true"></span>LIVE</div>
+  <div class="track-wrap">
+    <div class="track">
+      <span class="tk"><span class="tag" style="background:var(--c-news)">NEWS</span>Cabinet clears new IT corridor for Hyderabad's eastern belt</span>
+      <span class="tk"><span class="tag" style="background:var(--c-agri)">AGRI</span>Cotton procurement price revised ahead of kharif season</span>
+      <span class="tk"><span class="tag" style="background:var(--c-business)">BIZ</span>Telugu startups raise record funding in Q2</span>
+      <span class="tk"><span class="tag" style="background:var(--c-health)">HEALTH</span>Doctors flag early-monsoon dengue precautions</span>
+      <span class="tk"><span class="tag" style="background:var(--c-sports)">SPORTS</span>Hyderabad FC names new squad for the season</span>
+      <!-- duplicate for seamless loop -->
+      <span class="tk"><span class="tag" style="background:var(--c-news)">NEWS</span>Cabinet clears new IT corridor for Hyderabad's eastern belt</span>
+      <span class="tk"><span class="tag" style="background:var(--c-agri)">AGRI</span>Cotton procurement price revised ahead of kharif season</span>
+      <span class="tk"><span class="tag" style="background:var(--c-business)">BIZ</span>Telugu startups raise record funding in Q2</span>
+      <span class="tk"><span class="tag" style="background:var(--c-health)">HEALTH</span>Doctors flag early-monsoon dengue precautions</span>
+      <span class="tk"><span class="tag" style="background:var(--c-sports)">SPORTS</span>Hyderabad FC names new squad for the season</span>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section><div class="wrap">
+  <div class="hero-grid">
+    <!-- lead story -->
+    <article class="lead">
+      <div class="thumb" aria-hidden="true"></div>
+      <div class="scan" aria-hidden="true"></div>
+      <div class="play" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="body">
+        <span class="chip" style="background:var(--c-news)">● Top Story · Video</span>
+        <h1>Inside the new Hyderabad IT corridor: what it means for jobs</h1>
+        <div class="qa">
+          <div class="qlabel">⚡ QUICK ANSWER</div>
+          <p>The corridor is expected to add an estimated 120,000 tech jobs over five years, with the first phase opening near the ORR by late 2027.</p>
+        </div>
+        <div class="meta">
+          <span class="vchip">▶ 6:12</span>
+          <span>2.4M views</span>
+          <span>· 3 hours ago</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- live now side -->
+    <aside class="sidecard">
+      <div class="side-h"><span class="t">Trending now</span><span class="more">See all →</span></div>
+      <a class="row" href="#">
+        <div class="rthumb" style="background:linear-gradient(150deg,#1390A3,#0c5560)"><span class="d">4:30</span></div>
+        <div><div class="rtitle">Asia Cup: India's spin plan explained ball-by-ball</div><div class="rmeta"><span class="ctag" style="background:var(--c-sports)">SPORTS</span> 880K views</div></div>
+      </a>
+      <a class="row" href="#">
+        <div class="rthumb" style="background:linear-gradient(150deg,#C4831A,#7d5210)"><span class="d">8:05</span></div>
+        <div><div class="rtitle">5 wealth habits of Telugu entrepreneurs under 30</div><div class="rmeta"><span class="ctag" style="background:var(--c-business)">BIZ</span> 1.2M views</div></div>
+      </a>
+      <a class="row" href="#">
+        <div class="rthumb" style="background:linear-gradient(150deg,#C0492A,#7a2c18)"><span class="d">12:40</span></div>
+        <div><div class="rtitle">Bonalu 2026: temple timings and route map</div><div class="rmeta"><span class="ctag" style="background:var(--c-devotion)">DEVOTION</span> 640K views</div></div>
+      </a>
+      <a class="row" href="#">
+        <div class="rthumb" style="background:linear-gradient(150deg,#C03C8E,#7a2459)"><span class="d">9:18</span></div>
+        <div><div class="rtitle">Budget-friendly monsoon skincare that actually works</div><div class="rmeta"><span class="ctag" style="background:var(--c-women)">WOMEN</span> 1.5M views</div></div>
+      </a>
+      <div class="adunit ad-mpu">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox">
+          <span class="adbug" aria-hidden="true"></span>
+          <span class="ad-cta">Premium placement</span>
+          <span class="size">300 &times; 250 &middot; MPU</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- NETWORK READOUT (compact) -->
+  <div class="readout">
+    <span class="rd-head"><span class="pulse" aria-hidden="true"></span>NETWORK LIVE</span>
+    <span class="rstat"><b>11 <span>Cr</span></b>subscribers</span>
+    <span class="rstat"><b>11 <span>Cr+</span></b>daily views</span>
+    <span class="rstat"><b>250<span>+</span></b>channels</span>
+    <span class="rstat"><b>1,000<span>+</span></b>videos/mo</span>
+  </div>
+</div></section>
+
+<!-- AD: leaderboard -->
+<section class="ad-section"><div class="wrap">
+  <div class="adunit ad-leaderboard">
+    <span class="adlabel">Advertisement</span>
+    <div class="adbox">
+      <span class="adbug" aria-hidden="true"></span>
+      <span class="ad-cta">Your brand, in front of 11 crore</span>
+      <span class="size">970 &times; 90 &middot; Leaderboard</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- POLITICS -->
+<section class="catblock"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow"><span class="bar" style="background:var(--c-news)"></span>Politics</div><h2>Decoding the week in policy</h2></div>
+    <a class="sec-link" href="#" style="--c:var(--c-news)">Open Politics →</a>
+  </div>
+  <div class="cb-grid">
+    <article class="feature">
+      <div class="media"><div class="grad" style="background:linear-gradient(150deg,#C7362F,#6e1a16)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-news)">POLITICS</span><span class="dur">▶ 9:40</span></div>
+      <div class="fpad"><h3>Assembly session 2026: the key bills to watch this week</h3><div class="fmeta"><span>1.1M views</span><span>· 2 hrs ago</span></div></div>
+    </article>
+    <div class="flist" style="--c:var(--c-news)">
+      <a class="fitem" href="#"><span class="rank">01</span><div><div class="fh">The state budget explained in 5 simple points</div><div class="fmeta2">1.5M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">02</span><div><div class="fh">Local body polls: what actually changes for voters</div><div class="fmeta2">720K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">03</span><div><div class="fh">New IT policy — who benefits and how</div><div class="fmeta2">610K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">04</span><div><div class="fh">Panel: the data behind this week's headlines</div><div class="fmeta2">480K views</div></div></a>
+      <div class="adunit ad-rail">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox">
+          <span class="adbug" aria-hidden="true"></span>
+          <span class="ad-cta">Sidebar placement</span>
+          <span class="size">300 &times; 250 &middot; MPU</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ENTERTAINMENT -->
+<section class="catblock"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow"><span class="bar" style="background:var(--c-ent)"></span>Entertainment</div><h2>What Telugu audiences are watching</h2></div>
+    <a class="sec-link" href="#" style="--c:var(--c-ent)">Open Entertainment →</a>
+  </div>
+  <div class="cb-grid">
+    <article class="feature">
+      <div class="media"><div class="grad" style="background:linear-gradient(150deg,#C9551A,#5e2708)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-ent)">ENTERTAINMENT</span><span class="dur">▶ 8:20</span></div>
+      <div class="fpad"><h3>This summer's biggest Telugu release crosses ₹200 cr worldwide</h3><div class="fmeta"><span>3.1M views</span><span>· 5 hrs ago</span></div></div>
+    </article>
+    <div class="flist" style="--c:var(--c-ent)">
+      <a class="fitem" href="#"><span class="rank">01</span><div><div class="fh">7 OTT shows worth binge-watching this weekend</div><div class="fmeta2">1.4M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">02</span><div><div class="fh">How a viral folk song was recorded in one take</div><div class="fmeta2">920K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">03</span><div><div class="fh">Indie Telugu cinema is having a festival moment</div><div class="fmeta2">540K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">04</span><div><div class="fh">Inside a film set: a day with the stunt team</div><div class="fmeta2">770K views</div></div></a>
+      <div class="adunit ad-rail">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox">
+          <span class="adbug" aria-hidden="true"></span>
+          <span class="ad-cta">Sidebar placement</span>
+          <span class="size">300 &times; 250 &middot; MPU</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- AD: native sponsored -->
+<section class="ad-section"><div class="wrap">
+  <span class="adlabel" style="display:block; text-align:center; margin-bottom:9px;">Advertisement</span>
+  <article class="sponsored">
+    <div class="smedia"><span class="slogo">BrandCo</span></div>
+    <div class="spad">
+      <span class="stag">&#9733; Sponsored &middot; BrandCo</span>
+      <h3>The monsoon sale is live &mdash; up to 50% off across home essentials</h3>
+      <p>A native, brand-safe placement that reads like a story and runs inside SumanTV's trusted feed &mdash; the format your 100+ sponsors convert best on.</p>
+      <button class="sbtn">Shop the sale &rarr;</button>
+    </div>
+  </article>
+</div></section>
+
+<!-- BUSINESS -->
+<section class="catblock"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow"><span class="bar" style="background:var(--c-business)"></span>Business</div><h2>Money, markets &amp; motivation</h2></div>
+    <a class="sec-link" href="#" style="--c:var(--c-business)">Open Business →</a>
+  </div>
+  <div class="cb-grid">
+    <article class="feature">
+      <div class="media"><div class="grad" style="background:linear-gradient(150deg,#C4831A,#6e4a0d)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-business)">BUSINESS</span><span class="dur">▶ 11:05</span></div>
+      <div class="fpad"><h3>Hyderabad SaaS startup becomes the city's newest unicorn</h3><div class="fmeta"><span>1.6M views</span><span>· 8 hrs ago</span></div></div>
+    </article>
+    <div class="flist" style="--c:var(--c-business)">
+      <a class="fitem" href="#"><span class="rank">01</span><div><div class="fh">Start a business with ₹50,000: 6 realistic ideas</div><div class="fmeta2">2.2M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">02</span><div><div class="fh">Gold, mutual funds or FD — where to park savings in 2026</div><div class="fmeta2">1.3M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">03</span><div><div class="fh">GST changes every small trader should know this quarter</div><div class="fmeta2">680K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">04</span><div><div class="fh">From kirana to crore: a Telugu family business story</div><div class="fmeta2">940K views</div></div></a>
+      <div class="adunit ad-rail">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox">
+          <span class="adbug" aria-hidden="true"></span>
+          <span class="ad-cta">Sidebar placement</span>
+          <span class="size">300 &times; 250 &middot; MPU</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- AD: leaderboard -->
+<section class="ad-section"><div class="wrap">
+  <div class="adunit ad-leaderboard">
+    <span class="adlabel">Advertisement</span>
+    <div class="adbox">
+      <span class="adbug" aria-hidden="true"></span>
+      <span class="ad-cta">Sponsored placement available</span>
+      <span class="size">728 &times; 90 &middot; Billboard</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- TECHNOLOGY -->
+<section class="catblock"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow"><span class="bar" style="background:var(--c-tech)"></span>Technology</div><h2>Tech that fits your life</h2></div>
+    <a class="sec-link" href="#" style="--c:var(--c-tech)">Open Technology →</a>
+  </div>
+  <div class="cb-grid">
+    <article class="feature">
+      <div class="media"><div class="grad" style="background:linear-gradient(150deg,#2D63CE,#163472)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-tech)">TECHNOLOGY</span><span class="dur">▶ 12:18</span></div>
+      <div class="fpad"><h3>Best budget smartphones in India right now, ranked</h3><div class="fmeta"><span>2.8M views</span><span>· 1 day ago</span></div></div>
+    </article>
+    <div class="flist" style="--c:var(--c-tech)">
+      <a class="fitem" href="#"><span class="rank">01</span><div><div class="fh">5 UPI features you probably aren't using yet</div><div class="fmeta2">1.9M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">02</span><div><div class="fh">Laptops under ₹40,000 for students in 2026</div><div class="fmeta2">1.2M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">03</span><div><div class="fh">How to spot and stop a phishing scam</div><div class="fmeta2">860K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">04</span><div><div class="fh">WhatsApp settings that protect your privacy</div><div class="fmeta2">1.1M views</div></div></a>
+      <div class="adunit ad-rail">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox">
+          <span class="adbug" aria-hidden="true"></span>
+          <span class="ad-cta">Sidebar placement</span>
+          <span class="size">300 &times; 250 &middot; MPU</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- AI -->
+<section class="catblock"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow"><span class="bar" style="background:var(--c-ai)"></span>AI</div><h2>AI, in plain Telugu</h2></div>
+    <a class="sec-link" href="#" style="--c:var(--c-ai)">Open AI →</a>
+  </div>
+  <div class="cb-grid">
+    <article class="feature">
+      <div class="media"><div class="grad" style="background:linear-gradient(150deg,#6B4AD1,#382673)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-ai)">AI</span><span class="dur">▶ 7:55</span></div>
+      <div class="fpad"><h3>We dubbed one video into 4 languages with AI — here's the result</h3><div class="fmeta"><span>1.3M views</span><span>· 6 hrs ago</span></div></div>
+    </article>
+    <div class="flist" style="--c:var(--c-ai)">
+      <a class="fitem" href="#"><span class="rank">01</span><div><div class="fh">5 free AI tools every small business should try</div><div class="fmeta2">1.6M views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">02</span><div><div class="fh">AI crop alerts: farming advice on your phone</div><div class="fmeta2">740K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">03</span><div><div class="fh">Can AI write news? What it gets right and wrong</div><div class="fmeta2">590K views</div></div></a>
+      <a class="fitem" href="#"><span class="rank">04</span><div><div class="fh">Make studio-quality thumbnails with AI in minutes</div><div class="fmeta2">820K views</div></div></a>
+      <div class="adunit ad-rail">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox">
+          <span class="adbug" aria-hidden="true"></span>
+          <span class="ad-cta">Sidebar placement</span>
+          <span class="size">300 &times; 250 &middot; MPU</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- MOST WATCHED (4-thumb grid + ad) -->
+<section><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow"><span class="bar" style="background:var(--c-sports)"></span>Most watched</div><h2>Trending across SumanTV today</h2></div>
+    <a class="sec-link" href="#" style="--c:var(--c-sports)">See all videos →</a>
+  </div>
+  <div class="thumbgrid">
+    <a class="thumbcard" href="#">
+      <div class="tmedia"><div class="grad" style="background:linear-gradient(150deg,#C9551A,#5e2708)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-ent)">ENTERTAINMENT</span><span class="dur">▶ 6:40</span></div>
+      <div class="ttitle">Behind the scenes of this year's biggest dance number</div>
+      <div class="tmeta">2.1M views · 4 hrs ago</div>
+    </a>
+    <a class="thumbcard" href="#">
+      <div class="tmedia"><div class="grad" style="background:linear-gradient(150deg,#1390A3,#0c5560)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-sports)">SPORTS</span><span class="dur">▶ 3:12</span></div>
+      <div class="ttitle">Asia Cup: the over that changed the match</div>
+      <div class="tmeta">1.7M views · 7 hrs ago</div>
+    </a>
+    <a class="thumbcard" href="#">
+      <div class="tmedia"><div class="grad" style="background:linear-gradient(150deg,#C4831A,#6e4a0d)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-business)">BUSINESS</span><span class="dur">▶ 9:25</span></div>
+      <div class="ttitle">He turned ₹10,000 into a tiffin empire</div>
+      <div class="tmeta">1.4M views · 1 day ago</div>
+    </a>
+    <a class="thumbcard" href="#">
+      <div class="tmedia"><div class="grad" style="background:linear-gradient(150deg,#C0492A,#7a2c18)"></div><div class="pat"></div><span class="cattag ctag" style="background:var(--c-devotion)">DEVOTION</span><span class="dur">▶ 11:08</span></div>
+      <div class="ttitle">Inside Tirumala's busiest morning of the year</div>
+      <div class="tmeta">980K views · 2 days ago</div>
+    </a>
+  </div>
+
+  <div class="adunit ad-billboard" style="margin-top:26px;">
+    <span class="adlabel">Advertisement</span>
+    <div class="adbox">
+      <span class="adbug" aria-hidden="true"></span>
+      <span class="ad-cta">Your campaign, under the day's top videos</span>
+      <span class="size">970 &times; 250 &middot; Billboard</span>
+    </div>
+  </div>
+</div></section>
+
+<!-- HEALTH RAIL (E-E-A-T + answer-first) -->
+<section id="health"><div class="wrap">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow"><span class="bar"></span>Health · Doctor Network</div>
+      <h2>Answered by verified doctors</h2>
+      <p>Real public questions, answered on camera by Hyderabad's top specialists — written up answer-first so you get the point in one line.</p>
+    </div>
+    <a class="sec-link" href="#">Open Health hub →</a>
+  </div>
+
+  <div class="cards">
+    <!-- card 1 -->
+    <article class="card">
+      <div class="media">
+        <div class="grad" style="background:linear-gradient(155deg,#13976B,#0a5840)"></div>
+        <div class="pat"></div>
+        <div class="ico" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg></div>
+        <span class="cattag ctag" style="background:var(--c-health)">HEALTH</span>
+        <span class="dur">▶ 7:24</span>
+      </div>
+      <div class="pad">
+        <h3>Is intermittent fasting safe if you have thyroid issues?</h3>
+        <div class="qa-row">
+          <span class="qi" aria-hidden="true">⚡</span>
+          <p><b>Quick answer:</b> It can be, but people on thyroid medication should take it on an empty stomach and keep a consistent eating window — check TSH every 3 months.</p>
+        </div>
+        <div class="author">
+          <span class="av" style="background:#13976B">PR</span>
+          <div><div class="nm">Dr. Padma Rao <span class="verify">✓ Verified</span></div><div class="rl">Endocrinologist · 18 yrs</div></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- card 2 -->
+    <article class="card">
+      <div class="media">
+        <div class="grad" style="background:linear-gradient(155deg,#1aa87a,#0d6b4d)"></div>
+        <div class="pat"></div>
+        <div class="ico" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg></div>
+        <span class="cattag ctag" style="background:var(--c-health)">HEALTH</span>
+        <span class="dur">▶ 5:51</span>
+      </div>
+      <div class="pad">
+        <h3>What's a normal blood pressure reading after 40?</h3>
+        <div class="qa-row">
+          <span class="qi" aria-hidden="true">⚡</span>
+          <p><b>Quick answer:</b> Aim for under 130/80. A single high reading isn't a diagnosis — measure twice daily for a week before worrying.</p>
+        </div>
+        <div class="author">
+          <span class="av" style="background:#0f7a59">SK</span>
+          <div><div class="nm">Dr. Suresh Kumar <span class="verify">✓ Verified</span></div><div class="rl">Cardiologist · 22 yrs</div></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- card 3 -->
+    <article class="card">
+      <div class="media">
+        <div class="grad" style="background:linear-gradient(155deg,#16996d,#0a5a41)"></div>
+        <div class="pat"></div>
+        <div class="ico" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+        <span class="cattag ctag" style="background:var(--c-health)">HEALTH</span>
+        <span class="dur">▶ 9:02</span>
+      </div>
+      <div class="pad">
+        <h3>How much protein does a vegetarian really need daily?</h3>
+        <div class="qa-row">
+          <span class="qi" aria-hidden="true">⚡</span>
+          <p><b>Quick answer:</b> About 0.8–1g per kg of body weight. Dals, paneer, curd and a scoop of sprouts can cover it without supplements.</p>
+        </div>
+        <div class="author">
+          <span class="av" style="background:#137a59">AN</span>
+          <div><div class="nm">Dr. Anjali Nair <span class="verify">✓ Verified</span></div><div class="rl">Nutritionist · 12 yrs</div></div>
+        </div>
+      </div>
+    </article>
+  </div>
+</div></section>
+
+<!-- COMMUNITIES -->
+<section class="comm"><div class="wrap">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow"><span class="bar" style="background:var(--c-women)"></span>Communities</div>
+      <h2>Find your people, by category</h2>
+      <p>Each category is its own community — ask questions, follow experts, and unlock member-only group deals.</p>
+    </div>
+    <a class="sec-link" href="#" style="--c-health:var(--c-women)">Browse all →</a>
+  </div>
+
+  <div class="chgrid">
+    <div class="ch" style="--c:var(--c-health)">
+      <div class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 12h4l2 5 4-12 2 7h6"/></svg></div>
+      <div class="cn">Health</div><div class="cs">Doctor Q&amp;A &amp; wellness</div>
+      <div class="cmembers"><span class="d"></span>24.6L members</div>
+      <button class="cjoin">Join</button>
+    </div>
+    <div class="ch" style="--c:var(--c-agri)">
+      <div class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 3v18M5 9c0 4 3 6 7 6M19 9c0 4-3 6-7 6"/></svg></div>
+      <div class="cn">Agriculture</div><div class="cs">Crops, prices &amp; deals</div>
+      <div class="cmembers"><span class="d"></span>31.2L members</div>
+      <button class="cjoin">Join</button>
+    </div>
+    <div class="ch" style="--c:var(--c-business)">
+      <div class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M4 19h16M7 16v-5M12 16V7M17 16v-8"/></svg></div>
+      <div class="cn">Business</div><div class="cs">Wealth &amp; motivation</div>
+      <div class="cmembers"><span class="d"></span>18.9L members</div>
+      <button class="cjoin">Join</button>
+    </div>
+    <div class="ch" style="--c:var(--c-women)">
+      <div class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="8" r="5"/><path d="M12 13v8M9 18h6"/></svg></div>
+      <div class="cn">Women</div><div class="cs">Lifestyle &amp; group buys</div>
+      <div class="cmembers"><span class="d"></span>27.4L members</div>
+      <button class="cjoin">Join</button>
+    </div>
+    <div class="ch" style="--c:var(--c-devotion)">
+      <div class="ci"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 2l2 4 4 .5-3 3 .8 4-3.8-2-3.8 2 .8-4-3-3 4-.5z"/></svg></div>
+      <div class="cn">Devotion</div><div class="cs">Temples &amp; festivals</div>
+      <div class="cmembers"><span class="d"></span>22.1L members</div>
+      <button class="cjoin">Join</button>
+    </div>
+  </div>
+</div></section>
+
+<!-- DEALS / DEMAND AGGREGATION -->
+<section><div class="wrap">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow"><span class="bar" style="background:var(--c-agri)"></span>Community Deals · Demand aggregation</div>
+      <h2>When the community buys together, the price drops</h2>
+      <p>We pool interest from members, then take it to brands for a group price you can't get alone.</p>
+    </div>
+  </div>
+
+  <div class="deal-card">
+    <div class="deal-vis">
+      <span class="agtag ctag" style="background:var(--c-agri)">AGRICULTURE</span>
+      <div>
+        <div class="pic" aria-hidden="true">🌾</div>
+        <div class="pname">Hybrid Cotton Seed — 450g</div>
+        <div class="psub">BrandCo · kharif-ready · 2026 batch</div>
+      </div>
+    </div>
+    <div class="deal-body">
+      <div class="dh"><span>◆</span> AGRI COMMUNITY · GROUP DEAL</div>
+      <h3>12,480 farmers want this. The group price just unlocked.</h3>
+      <p class="lede">SumanTV negotiated directly with the supplier on behalf of the Agriculture community. The more members join, the lower it goes.</p>
+      <div class="price">
+        <span class="grp">₹740 <span>/ pack</span></span>
+        <span class="was">₹1,150</span>
+        <span class="off">−36%</span>
+      </div>
+      <div class="prog"><div class="fill"></div></div>
+      <div class="prog-meta"><span>12,480 / 15,000 joined</span><span><b>Next tier</b> at 15,000 → ₹690</span></div>
+      <div class="deal-cta">
+        <button class="b1">Join this deal</button>
+        <button class="b2">How group deals work</button>
+      </div>
+      <div class="deal-note">Members pay nothing until the group price is confirmed. Powered by SumanTV's verified community.</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FOOTER -->
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div>
+      <div class="name">Suman<span class="tv">TV</span></div>
+      <p class="blurb">India's #1 digital media network. Telugu-first since 2012, now across four languages.</p>
+      <div class="flangs"><span class="tel">తెలుగు</span><span class="tel">தமிழ்</span><span class="tel">ಕನ್ನಡ</span><span class="tel">हिन्दी</span></div>
+    </div>
+    <div class="fcol"><h4>Explore</h4><a href="#">News</a><a href="#">Health</a><a href="#">Agriculture</a><a href="#">Business</a><a href="#">Women</a></div>
+    <div class="fcol"><h4>Community</h4><a href="#">Join free</a><a href="#">Group deals</a><a href="#">Ask a doctor</a><a href="#">Creator network</a></div>
+    <div class="fcol"><h4>Network</h4><a href="#">About SumanTV</a><a href="#">For brands</a><a href="#">250+ channels</a><a href="#">Contact</a></div>
+  </div>
+  <div class="fbottom">
+    <span>© 2026 SumanTV Digital Media Network · Hyderabad</span>
+    <span>Privacy · Terms · Editorial standards</span>
+  </div>
+</div></footer>
+
+</body>
+</html>

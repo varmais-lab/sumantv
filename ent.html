@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SumanTV — Entertainment (UI Mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Telugu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15121A; --ink-soft:#3A343F; --paper:#FBFAF7; --paper-2:#F2EEE6;
+    --line:#E5DFD4; --muted:#756F7B; --white:#fff;
+    --signal:#E5302A;
+    --c-news:#E5302A; --c-sports:#1390A3; --c-business:#C4831A; --c-health:#11976B;
+    --c-ent:#E0641B; --c-devotion:#C0492A; --c-women:#C03C8E; --c-agri:#5C8526;
+    --c-ai:#6B4AD1; --c-tech:#2D63CE;
+    --c:var(--c-ent); /* category = Entertainment */
+    --r:14px;
+    --shadow:0 1px 2px rgba(21,18,26,.05), 0 10px 26px -14px rgba(21,18,26,.22);
+    --maxw:1240px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"Inter",system-ui,sans-serif; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px;}
+  h1,h2,h3,h4{font-family:"Bricolage Grotesque",sans-serif; margin:0; line-height:1.08; letter-spacing:-.01em;}
+  :focus-visible{outline:3px solid var(--c); outline-offset:2px; border-radius:4px;}
+  .ctag{font-family:"IBM Plex Mono"; font-size:10px; font-weight:600; padding:3px 8px; border-radius:5px; color:#fff; letter-spacing:.04em; text-transform:uppercase;}
+  .pat{position:absolute; inset:0; opacity:.15; background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0); background-size:13px 13px;}
+
+  /* masthead */
+  .note-banner{background:#FFF6E9; border-bottom:1px solid #F0E2C7; color:#7A5B1E; font-size:12.5px;}
+  .note-banner .wrap{padding:8px 22px; text-align:center;}
+  .mast{position:sticky; top:0; z-index:60; background:rgba(251,250,247,.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .mast .wrap{display:flex; align-items:center; gap:18px; height:64px;}
+  .brand{display:flex; align-items:center; gap:11px;}
+  .bug{width:32px; height:32px; border-radius:8px; position:relative; flex:none; background:linear-gradient(150deg,#FF5A4F,#C4221C); box-shadow:0 4px 12px -4px rgba(229,48,42,.6);}
+  .bug::after{content:"S"; position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-family:"Bricolage Grotesque"; font-weight:800; font-size:20px;}
+  .brand .name{font-family:"Bricolage Grotesque"; font-weight:800; font-size:22px; letter-spacing:-.02em;}
+  .brand .name .tv{color:var(--signal);}
+  .brand .tag{display:block; font-size:9px; letter-spacing:.2em; color:var(--muted); font-weight:600; margin-top:1px; text-transform:uppercase;}
+  .pillcat{display:inline-flex; align-items:center; gap:7px; background:var(--c-ent); color:#fff; font-family:"Bricolage Grotesque"; font-weight:700; font-size:13px; padding:6px 13px; border-radius:20px;}
+  .mast .spacer{flex:1;}
+  .search{display:none; align-items:center; gap:8px; background:var(--white); border:1px solid var(--line); border-radius:24px; padding:8px 14px; min-width:200px; color:var(--muted);}
+  .search input{border:none; background:none; outline:none; font-family:inherit; font-size:14px; width:100%; color:var(--ink);}
+  @media(min-width:980px){.search{display:flex;}}
+  .btn{font-weight:600; font-size:14px; border-radius:24px; padding:9px 18px; cursor:pointer; border:1px solid transparent; white-space:nowrap; font-family:"Inter";}
+  .btn-join{background:var(--ink); color:#fff;} .btn-join:hover{background:#000;}
+
+  /* hub header + chips */
+  .hub{background:linear-gradient(180deg,#1a1018,#15121A); color:#fff; padding:30px 0 0; position:relative; overflow:hidden;}
+  .hub::before{content:""; position:absolute; right:-10%; top:-40%; width:60%; height:160%; background:radial-gradient(closest-side, rgba(224,100,27,.4), transparent); }
+  .hub .wrap{position:relative;}
+  .hub .eyebrow{font-family:"IBM Plex Mono"; font-size:11.5px; letter-spacing:.18em; text-transform:uppercase; color:#E0A07B; display:flex; align-items:center; gap:9px;}
+  .hub .eyebrow .bar{width:26px;height:3px;border-radius:2px;background:var(--c-ent);}
+  .hub h1{font-size:clamp(32px,5vw,52px); font-weight:800; margin:12px 0 6px; letter-spacing:-.02em;}
+  .hub .sub{color:#C8C2BC; font-size:15px; max-width:54ch;}
+  .chips{display:flex; gap:9px; overflow-x:auto; padding:22px 0 0; scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{white-space:nowrap; font-size:13.5px; font-weight:600; color:#E7E2DB; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); padding:9px 16px; border-radius:22px; transform:translateY(1px);}
+  .chip:hover{background:rgba(255,255,255,.16);}
+  .chip.active{background:var(--c-ent); color:#fff; border-color:var(--c-ent);}
+  .hub-pad{height:26px;}
+
+  section{padding:42px 0;}
+  .sec-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:22px;}
+  .eyebrow2{display:flex; align-items:center; gap:9px; font-family:"IBM Plex Mono"; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;}
+  .eyebrow2 .bar{width:24px;height:3px;border-radius:2px;background:var(--c);}
+  .sec-head h2{font-size:clamp(23px,3vw,31px); font-weight:800;}
+  .sec-head p{margin:7px 0 0; color:var(--muted); font-size:14px; max-width:54ch;}
+  .sec-link{font-size:13.5px; font-weight:600; white-space:nowrap; color:var(--ink);}
+  .sec-link:hover{color:var(--c);}
+
+  /* HERO featured movie story */
+  .lead{position:relative; border-radius:var(--r); overflow:hidden; min-height:420px; display:flex; align-items:flex-end; box-shadow:var(--shadow); margin-top:26px; z-index:1;}
+  .lead .bg{position:absolute; inset:0; background:radial-gradient(120% 90% at 75% 10%, rgba(224,100,27,.42), transparent 55%), linear-gradient(200deg,#2b2030,#130f17 76%);}
+  .lead .bg::after{content:""; position:absolute; inset:0; background:linear-gradient(transparent 25%, rgba(8,6,10,.9));}
+  .lead .body{position:relative; padding:28px; color:#fff; max-width:760px;}
+  .lead .row{display:flex; gap:9px; align-items:center; margin-bottom:14px; flex-wrap:wrap;}
+  .lead h2{font-size:clamp(26px,3.6vw,42px); font-weight:800; line-height:1.05; max-width:20ch;}
+  .lead .dek{color:#D9D3CC; font-size:15px; margin:13px 0 0; max-width:60ch;}
+  .lead .meta{display:flex; gap:14px; align-items:center; margin-top:16px; font-family:"IBM Plex Mono"; font-size:12.5px; color:#CFC8C0;}
+  .lead .play{position:absolute; top:22px; right:22px; width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.36); display:grid; place-items:center; backdrop-filter:blur(4px);}
+  .tag-cinema{background:var(--c-ent); color:#fff; font-family:"IBM Plex Mono"; font-size:11px; font-weight:600; letter-spacing:.05em; padding:4px 10px; border-radius:6px;}
+
+  /* RATING stars */
+  .rating{display:inline-block; position:relative; font-size:15px; line-height:1; font-family:Arial,sans-serif; letter-spacing:1px;}
+  .rating .base{color:#D9D2C6;}
+  .rating .fill{position:absolute; left:0; top:0; overflow:hidden; white-space:nowrap; color:var(--c-ent);}
+  .rating-num{font-family:"IBM Plex Mono"; font-size:13px; font-weight:600; color:var(--ink); margin-left:7px;}
+
+  /* REVIEW cards */
+  .reviews{display:grid; grid-template-columns:1fr; gap:16px;}
+  @media(min-width:640px){.reviews{grid-template-columns:repeat(2,1fr);}}
+  .review{display:flex; gap:14px; background:var(--white); border:1px solid var(--line); border-radius:var(--r); padding:14px; box-shadow:var(--shadow); transition:transform .16s;}
+  .review:hover{transform:translateY(-3px);}
+  .review .poster{width:92px; flex:none; aspect-ratio:2/3; border-radius:9px; position:relative; overflow:hidden;}
+  .review .poster .pchip{position:absolute; bottom:6px; left:6px; right:6px; text-align:center; font-family:"Bricolage Grotesque"; font-weight:700; font-size:11px; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.6);}
+  .review .rbody{display:flex; flex-direction:column; min-width:0;}
+  .review h3{font-size:17px; font-weight:800;}
+  .review .rrow{display:flex; align-items:center; gap:0; margin:7px 0 8px;}
+  .verdict{display:inline-block; font-family:"IBM Plex Mono"; font-size:10.5px; font-weight:600; padding:3px 9px; border-radius:20px; align-self:flex-start; margin-bottom:8px;}
+  .v-good{background:#E9F6EF; color:#0f7a59; border:1px solid #CDE9DF;}
+  .v-mid{background:#FBF3DC; color:#9A7A22; border:1px solid #EFE2B8;}
+  .v-low{background:#FDEFEE; color:var(--signal); border:1px solid #F4CFCD;}
+  .review .take{font-size:13px; color:var(--ink-soft); line-height:1.45;}
+  .review .critic{font-family:"IBM Plex Mono"; font-size:10.5px; color:var(--muted); margin-top:auto; padding-top:9px;}
+
+  /* ARTICLE cards */
+  .cards{display:grid; grid-template-columns:1fr; gap:18px;}
+  @media(min-width:620px){.cards{grid-template-columns:repeat(2,1fr);}}
+  @media(min-width:980px){.cards{grid-template-columns:repeat(3,1fr);}}
+  .card{background:var(--white); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); transition:transform .18s;}
+  .card:hover{transform:translateY(-3px);}
+  .card .media{position:relative; aspect-ratio:16/10;}
+  .card .media .ct{position:absolute; top:9px; left:9px;}
+  .card .media .dur{position:absolute; bottom:9px; right:9px; font-family:"IBM Plex Mono"; font-size:11px; background:rgba(0,0,0,.72); color:#fff; padding:2px 7px; border-radius:5px;}
+  .card .pad{padding:14px 15px 16px;}
+  .card h3{font-size:16.5px; font-weight:700; line-height:1.22;}
+  .card .cm{font-family:"IBM Plex Mono"; font-size:10.5px; color:var(--muted); margin-top:9px;}
+
+  /* GALLERY cards (photo sets) */
+  .galgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media(min-width:620px){.galgrid{grid-template-columns:repeat(3,1fr);}}
+  @media(min-width:980px){.galgrid{grid-template-columns:repeat(4,1fr);}}
+  .galcard{position:relative; border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); aspect-ratio:3/4; display:block;}
+  .galcard .gimg{position:absolute; inset:0; transition:transform .3s ease;}
+  .galcard:hover .gimg{transform:scale(1.05);}
+  .galcard .gshade{position:absolute; inset:0; background:linear-gradient(transparent 38%, rgba(8,6,10,.82));}
+  .galcard .count{position:absolute; top:11px; right:11px; background:rgba(0,0,0,.55); color:#fff; font-family:"IBM Plex Mono"; font-size:11px; padding:4px 9px; border-radius:20px; display:flex; align-items:center; gap:6px; border:1px solid rgba(255,255,255,.2);}
+  .galcard .gcap{position:absolute; left:14px; right:14px; bottom:14px; color:#fff;}
+  .galcard .gcap .gt{font-family:"Bricolage Grotesque"; font-weight:700; font-size:15px; line-height:1.2;}
+  .galcard .gcap .gs{font-family:"IBM Plex Mono"; font-size:10.5px; color:#E0C9B8; margin-top:5px;}
+  .galcard .viewpill{position:absolute; inset:0; display:grid; place-items:center; opacity:0; transition:opacity .2s;}
+  .galcard:hover .viewpill{opacity:1;}
+  .galcard .viewpill span{background:rgba(224,100,27,.92); color:#fff; font-weight:600; font-size:13px; padding:8px 16px; border-radius:22px;}
+
+  /* POSTERS gallery */
+  .postergrid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  @media(min-width:560px){.postergrid{grid-template-columns:repeat(3,1fr);}}
+  @media(min-width:900px){.postergrid{grid-template-columns:repeat(6,1fr);}}
+  .poster{position:relative; border-radius:11px; overflow:hidden; aspect-ratio:2/3; box-shadow:var(--shadow); display:block;}
+  .poster .pimg{position:absolute; inset:0; transition:transform .3s ease;}
+  .poster:hover .pimg{transform:scale(1.06);}
+  .poster .pshade{position:absolute; inset:0; background:linear-gradient(transparent 45%, rgba(8,6,10,.88));}
+  .poster .plabel{position:absolute; top:8px; left:8px; font-family:"IBM Plex Mono"; font-size:9px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; background:rgba(0,0,0,.5); color:#fff; padding:3px 7px; border-radius:5px; border:1px solid rgba(255,255,255,.18);}
+  .poster .pname{position:absolute; left:11px; right:11px; bottom:11px; color:#fff; font-family:"Bricolage Grotesque"; font-weight:700; font-size:14px; line-height:1.1;}
+  .poster .pname small{display:block; font-family:"IBM Plex Mono"; font-weight:500; font-size:9.5px; color:#E0C9B8; margin-top:4px; letter-spacing:.03em;}
+
+  /* ads */
+  .adunit{display:flex; flex-direction:column; align-items:center; gap:7px;}
+  .adlabel{font-family:"IBM Plex Mono"; font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:#B0A99F;}
+  .adbox{width:100%; border:1px dashed #D8D1C5; border-radius:12px; background:#F5F1E8; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; text-align:center; padding:18px; color:var(--muted);}
+  .adbox .adbug{width:24px;height:24px;border-radius:7px;background:linear-gradient(150deg,#FF5A4F,#C4221C);margin-bottom:3px;}
+  .adbox .ad-cta{font-family:"Bricolage Grotesque"; font-weight:700; font-size:15px; color:#5A5048;}
+  .adbox .size{font-family:"IBM Plex Mono"; font-size:11.5px; color:#9A9388;}
+  .ad-section{padding:12px 0;}
+  .ad-leaderboard .adbox{min-height:100px;}
+
+  /* footer */
+  footer{background:var(--ink); color:#C9C3BC; padding:40px 0 26px; margin-top:8px;}
+  .fbottom{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; font-size:12px; color:#8E8882;}
+  footer .name{font-family:"Bricolage Grotesque"; font-weight:800; font-size:20px; color:#fff;}
+  footer .name .tv{color:var(--signal);}
+  footer .fl{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 22px;}
+  footer .fl span{font-size:12.5px; border:1px solid rgba(255,255,255,.16); padding:4px 11px; border-radius:20px;}
+
+  @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto;} }
+</style>
+</head>
+<body>
+
+<div class="note-banner"><div class="wrap">Static UI mockup — Entertainment hub. Movie titles, ratings and galleries are sample content; all images are styled placeholders (no real people or photos).</div></div>
+
+<header class="mast"><div class="wrap">
+  <a class="brand" href="#"><span class="bug" aria-hidden="true"></span><span><span class="name">Suman<span class="tv">TV</span></span><span class="tag">Digital Media Network</span></span></a>
+  <span class="pillcat">★ Entertainment</span>
+  <span class="spacer"></span>
+  <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Search movies, reviews, galleries…" aria-label="Search"/></label>
+  <button class="btn btn-join">Join free</button>
+</div></header>
+
+<!-- HUB HEADER -->
+<div class="hub"><div class="wrap">
+  <div class="eyebrow"><span class="bar"></span>Entertainment</div>
+  <h1>Cinema, stars &amp; everything in between</h1>
+  <p class="sub">Reviews, on-set stories, photo galleries and first-look posters — updated through the day.</p>
+  <div class="chips">
+    <a class="chip active" href="#">All</a>
+    <a class="chip" href="#reviews">Movie reviews</a>
+    <a class="chip" href="#news">Movie news</a>
+    <a class="chip" href="#gallery">Photo galleries</a>
+    <a class="chip" href="#posters">Posters &amp; first looks</a>
+  </div>
+  <div class="hub-pad"></div>
+</div></div>
+
+<!-- HERO featured movie story -->
+<div class="wrap">
+  <article class="lead">
+    <div class="bg" aria-hidden="true"></div>
+    <div class="pat" aria-hidden="true"></div>
+    <div class="play" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+    <div class="body">
+      <div class="row"><span class="tag-cinema">● IN CINEMAS</span><span style="font-family:'IBM Plex Mono';font-size:12px;color:#CFC8C0">Cover story</span></div>
+      <h2>‘Veera Simha’ roars to a record opening weekend</h2>
+      <p class="dek">The big summer release crosses ₹200 cr worldwide in four days. We break down the numbers, the buzz, and what's driving the repeat audiences.</p>
+      <div class="meta"><span>▶ 8:20</span><span>3.1M views</span><span>· 5 hrs ago</span></div>
+    </div>
+  </article>
+</div>
+
+<!-- AD -->
+<section class="ad-section"><div class="wrap">
+  <div class="adunit ad-leaderboard"><span class="adlabel">Advertisement</span>
+    <div class="adbox"><span class="adbug" aria-hidden="true"></span><span class="ad-cta">Your brand, in front of 11 crore</span><span class="size">970 × 90 · Leaderboard</span></div>
+  </div>
+</div></section>
+
+<!-- MOVIE REVIEWS -->
+<section id="reviews"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow2"><span class="bar"></span>Movie reviews</div><h2>Our verdict, before you book</h2><p>Honest star ratings from the SumanTV Cinema desk.</p></div>
+    <a class="sec-link" href="#">All reviews →</a>
+  </div>
+  <div class="reviews">
+    <a class="review" href="#">
+      <div class="poster" style="background:linear-gradient(150deg,#7a3209,#3a1804)"><div class="pat"></div><div class="pchip">VEERA SIMHA</div></div>
+      <div class="rbody">
+        <h3>Veera Simha</h3>
+        <div class="rrow"><span class="rating" style="--v:90%"><span class="base">★★★★★</span><span class="fill" style="width:90%">★★★★★</span></span><span class="rating-num">4.5/5</span></div>
+        <span class="verdict v-good">BLOCKBUSTER</span>
+        <p class="take">A crowd-pleaser that delivers on scale and emotion. The interval block is the highlight of the year.</p>
+        <div class="critic">SumanTV Cinema desk · Action / Drama</div>
+      </div>
+    </a>
+    <a class="review" href="#">
+      <div class="poster" style="background:linear-gradient(150deg,#5b2a6e,#2a1334)"><div class="pat"></div><div class="pchip">PREMA KATHA</div></div>
+      <div class="rbody">
+        <h3>Prema Katha</h3>
+        <div class="rrow"><span class="rating"><span class="base">★★★★★</span><span class="fill" style="width:70%">★★★★★</span></span><span class="rating-num">3.5/5</span></div>
+        <span class="verdict v-good">WORTH A WATCH</span>
+        <p class="take">A warm, well-acted romance that takes its time. Slow in parts, but the leads carry it through.</p>
+        <div class="critic">SumanTV Cinema desk · Romance</div>
+      </div>
+    </a>
+    <a class="review" href="#">
+      <div class="poster" style="background:linear-gradient(150deg,#1f4f57,#0d2429)"><div class="pat"></div><div class="pchip">RAKSHASA</div></div>
+      <div class="rbody">
+        <h3>Rakshasa</h3>
+        <div class="rrow"><span class="rating"><span class="base">★★★★★</span><span class="fill" style="width:50%">★★★★★</span></span><span class="rating-num">2.5/5</span></div>
+        <span class="verdict v-mid">WAIT FOR OTT</span>
+        <p class="take">Stylish visuals can't fully cover a thin second half. One for streaming rather than the big screen.</p>
+        <div class="critic">SumanTV Cinema desk · Thriller</div>
+      </div>
+    </a>
+    <a class="review" href="#">
+      <div class="poster" style="background:linear-gradient(150deg,#6e4a0d,#3a2706)"><div class="pat"></div><div class="pchip">VIJAYA</div></div>
+      <div class="rbody">
+        <h3>Vijaya</h3>
+        <div class="rrow"><span class="rating"><span class="base">★★★★★</span><span class="fill" style="width:80%">★★★★★</span></span><span class="rating-num">4/5</span></div>
+        <span class="verdict v-good">DON'T MISS</span>
+        <p class="take">A tight sports drama with a genuinely moving finish. The best film in its genre this year.</p>
+        <div class="critic">SumanTV Cinema desk · Sports / Drama</div>
+      </div>
+    </a>
+  </div>
+</div></section>
+
+<!-- MOVIE NEWS / ARTICLES -->
+<section id="news" style="background:var(--paper-2)"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow2"><span class="bar"></span>Movie news &amp; features</div><h2>On the sets and beyond</h2></div>
+    <a class="sec-link" href="#">All stories →</a>
+  </div>
+  <div class="cards">
+    <a class="card" href="#">
+      <div class="media" style="background:linear-gradient(150deg,#C9551A,#5e2708)"><div class="pat"></div><span class="ct ctag" style="background:var(--c-ent)">FIRST LOOK</span><span class="dur">▶ 2:10</span></div>
+      <div class="pad"><h3>On the sets: the making of ‘Veera Simha's’ climax</h3><div class="cm">1.4M views · 6 hrs ago</div></div>
+    </a>
+    <a class="card" href="#">
+      <div class="media" style="background:linear-gradient(150deg,#a8431a,#4d2008)"><div class="pat"></div><span class="ct ctag" style="background:var(--c-ent)">INTERVIEW</span><span class="dur">▶ 11:30</span></div>
+      <div class="pad"><h3>The director on why he shot the finale in one take</h3><div class="cm">760K views · 1 day ago</div></div>
+    </a>
+    <a class="card" href="#">
+      <div class="media" style="background:linear-gradient(150deg,#b85518,#54260b)"><div class="pat"></div><span class="ct ctag" style="background:var(--c-ent)">BOX OFFICE</span><span class="dur">▶ 4:05</span></div>
+      <div class="pad"><h3>Box office: how this summer beat last year's record</h3><div class="cm">980K views · 9 hrs ago</div></div>
+    </a>
+  </div>
+</div></section>
+
+<!-- AD -->
+<section class="ad-section"><div class="wrap">
+  <div class="adunit ad-leaderboard"><span class="adlabel">Advertisement</span>
+    <div class="adbox"><span class="adbug" aria-hidden="true"></span><span class="ad-cta">Sponsored placement available</span><span class="size">728 × 90 · Billboard</span></div>
+  </div>
+</div></section>
+
+<!-- ACTRESS / PHOTO GALLERIES -->
+<section id="gallery"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow2"><span class="bar"></span>Photo galleries</div><h2>Red carpets, premieres &amp; cover shoots</h2><p>Tap any set to open the full gallery.</p></div>
+    <a class="sec-link" href="#">All galleries →</a>
+  </div>
+  <div class="galgrid">
+    <a class="galcard" href="#">
+      <div class="gimg" style="background:radial-gradient(120% 80% at 70% 10%, rgba(224,100,27,.4), transparent), linear-gradient(200deg,#3a2233,#170f18)"></div>
+      <div class="gshade"></div>
+      <div class="count">📷 24</div>
+      <div class="viewpill"><span>View gallery →</span></div>
+      <div class="gcap"><div class="gt">Premiere night: the red carpet</div><div class="gs">24 PHOTOS · FASHION</div></div>
+    </a>
+    <a class="galcard" href="#">
+      <div class="gimg" style="background:radial-gradient(120% 80% at 70% 10%, rgba(192,60,142,.4), transparent), linear-gradient(200deg,#33223a,#150f1a)"></div>
+      <div class="gshade"></div>
+      <div class="count">📷 18</div>
+      <div class="viewpill"><span>View gallery →</span></div>
+      <div class="gcap"><div class="gt">Festival looks: best saree moments</div><div class="gs">18 PHOTOS · FASHION</div></div>
+    </a>
+    <a class="galcard" href="#">
+      <div class="gimg" style="background:radial-gradient(120% 80% at 70% 10%, rgba(196,131,26,.4), transparent), linear-gradient(200deg,#3a2e1a,#17120b)"></div>
+      <div class="gshade"></div>
+      <div class="count">📷 32</div>
+      <div class="viewpill"><span>View gallery →</span></div>
+      <div class="gcap"><div class="gt">Awards night: best dressed</div><div class="gs">32 PHOTOS · EVENTS</div></div>
+    </a>
+    <a class="galcard" href="#">
+      <div class="gimg" style="background:radial-gradient(120% 80% at 70% 10%, rgba(19,144,163,.4), transparent), linear-gradient(200deg,#1f343a,#0f1a1d)"></div>
+      <div class="gshade"></div>
+      <div class="count">📷 15</div>
+      <div class="viewpill"><span>View gallery →</span></div>
+      <div class="gcap"><div class="gt">Magazine cover: behind the shoot</div><div class="gs">15 PHOTOS · SHOOT</div></div>
+    </a>
+  </div>
+</div></section>
+
+<!-- POSTERS GALLERY -->
+<section id="posters" style="background:var(--paper-2)"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="eyebrow2"><span class="bar"></span>Posters &amp; first looks</div><h2>Fresh from the studios</h2></div>
+    <a class="sec-link" href="#">All posters →</a>
+  </div>
+  <div class="postergrid">
+    <a class="poster" href="#"><div class="pimg" style="background:linear-gradient(160deg,#7a3209,#2a1304)"></div><div class="pshade"></div><span class="plabel">First Look</span><div class="pname">Veera Simha<small>Summer 2026</small></div></a>
+    <a class="poster" href="#"><div class="pimg" style="background:linear-gradient(160deg,#5b2a6e,#22102c)"></div><div class="pshade"></div><span class="plabel">Poster</span><div class="pname">Prema Katha<small>In cinemas</small></div></a>
+    <a class="poster" href="#"><div class="pimg" style="background:linear-gradient(160deg,#1f4f57,#0c2125)"></div><div class="pshade"></div><span class="plabel">Motion Poster</span><div class="pname">Rakshasa<small>Teaser out</small></div></a>
+    <a class="poster" href="#"><div class="pimg" style="background:linear-gradient(160deg,#6e4a0d,#2e2006)"></div><div class="pshade"></div><span class="plabel">First Look</span><div class="pname">Vijaya<small>Coming soon</small></div></a>
+    <a class="poster" href="#"><div class="pimg" style="background:linear-gradient(160deg,#7a1c2a,#2e0a10)"></div><div class="pshade"></div><span class="plabel">Poster</span><div class="pname">Stardust<small>Diwali release</small></div></a>
+    <a class="poster" href="#"><div class="pimg" style="background:linear-gradient(160deg,#244a2c,#0f1f14)"></div><div class="pshade"></div><span class="plabel">First Look</span><div class="pname">Maya Bazaar 2<small>Announced</small></div></a>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="name">Suman<span class="tv">TV</span> <span style="color:var(--c-ent)">Entertainment</span></div>
+  <div class="fl"><span>తెలుగు</span><span>தமிழ்</span><span>ಕನ್ನಡ</span><span>हिन्दी</span></div>
+  <div class="fbottom"><span>© 2026 SumanTV Digital Media Network · Hyderabad</span><span>Privacy · Terms · Editorial standards</span></div>
+</div></footer>
+
+</body>
+</html>

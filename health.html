@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SumanTV Health — Article Page (Doctor / YMYL variant)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Telugu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15121A; --ink-soft:#3A343F; --paper:#FBFAF7; --paper-2:#F2EEE6;
+    --line:#E5DFD4; --muted:#756F7B; --white:#fff;
+    --signal:#E5302A;
+    --c-news:#E5302A; --c-sports:#1390A3; --c-business:#C4831A; --c-health:#11976B;
+    --c-ent:#E0641B; --c-devotion:#C0492A; --c-women:#C03C8E; --c-agri:#5C8526;
+    --c-ai:#6B4AD1; --c-tech:#2D63CE;
+    --c:var(--c-health); /* this article's category = Health */
+    --r:14px;
+    --shadow:0 1px 2px rgba(21,18,26,.05), 0 10px 26px -14px rgba(21,18,26,.22);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"Inter",system-ui,sans-serif; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px;}
+  h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif; margin:0; line-height:1.08; letter-spacing:-.01em;}
+  :focus-visible{outline:3px solid var(--c); outline-offset:2px; border-radius:4px;}
+  .ctag{font-family:"IBM Plex Mono"; font-size:10px; font-weight:600; padding:3px 8px; border-radius:5px; color:#fff; letter-spacing:.04em; text-transform:uppercase;}
+
+  /* masthead */
+  .note-banner{background:#FFF6E9; border-bottom:1px solid #F0E2C7; color:#7A5B1E; font-size:12.5px;}
+  .note-banner .wrap{padding:8px 22px; text-align:center;}
+  .mast{position:sticky; top:0; z-index:60; background:rgba(251,250,247,.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .mast .wrap{display:flex; align-items:center; gap:20px; height:64px;}
+  .brand{display:flex; align-items:center; gap:11px;}
+  .bug{width:32px; height:32px; border-radius:8px; position:relative; flex:none; background:linear-gradient(150deg,#FF5A4F,#C4221C); box-shadow:0 4px 12px -4px rgba(229,48,42,.6);}
+  .bug::after{content:"S"; position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-family:"Bricolage Grotesque"; font-weight:800; font-size:20px;}
+  .brand .name{font-family:"Bricolage Grotesque"; font-weight:800; font-size:22px; letter-spacing:-.02em;}
+  .brand .name .tv{color:var(--signal);}
+  .brand .tag{display:block; font-size:9px; letter-spacing:.2em; color:var(--muted); font-weight:600; margin-top:1px; text-transform:uppercase;}
+  .mast .spacer{flex:1;}
+  .pillcat{display:inline-flex; align-items:center; gap:7px; background:var(--c-health); color:#fff; font-family:"Bricolage Grotesque"; font-weight:700; font-size:13px; padding:6px 13px; border-radius:20px;}
+  .search{display:none; align-items:center; gap:8px; background:var(--white); border:1px solid var(--line); border-radius:24px; padding:8px 14px; min-width:200px; color:var(--muted);}
+  .search input{border:none; background:none; outline:none; font-family:inherit; font-size:14px; width:100%; color:var(--ink);}
+  @media(min-width:980px){.search{display:flex;}}
+  .btn{font-weight:600; font-size:14px; border-radius:24px; padding:9px 18px; cursor:pointer; border:1px solid transparent; white-space:nowrap; font-family:"Inter";}
+  .btn-join{background:var(--c-health); color:#fff;} .btn-join:hover{filter:brightness(1.08);}
+
+  .breadcrumb{font-size:12.5px; color:var(--muted); font-family:"IBM Plex Mono"; padding:18px 0 4px; display:flex; gap:8px; flex-wrap:wrap;}
+  .breadcrumb a:hover{color:var(--c);}
+  .layout{display:grid; grid-template-columns:1fr; gap:34px; padding:8px 0 50px;}
+  @media(min-width:1000px){.layout{grid-template-columns:minmax(0,1fr) 332px; gap:44px;}}
+
+  /* head */
+  .kicker{display:flex; align-items:center; gap:10px; margin:6px 0 14px; flex-wrap:wrap;}
+  .kicker .upd{font-family:"IBM Plex Mono"; font-size:11px; color:var(--muted);}
+  .title{font-size:clamp(27px,4.3vw,44px); font-weight:800; letter-spacing:-.02em; line-height:1.05;}
+  .dek{font-size:clamp(16px,2vw,19px); color:var(--ink-soft); margin:16px 0 0; line-height:1.45; max-width:60ch;}
+
+  /* medical review row (YMYL) */
+  .review-row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:18px 0 0;}
+  .reviewed{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-soft); background:#EAF6F1; border:1px solid #CDE9DF; border-radius:20px; padding:6px 13px;}
+  .reviewed .vi{color:var(--c-health); display:inline-flex;}
+  .reviewed b{font-weight:700;}
+  .factchk{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-family:"IBM Plex Mono"; color:var(--c-health); font-weight:600;}
+
+  .byline{display:flex; align-items:center; gap:13px; margin:18px 0 0; flex-wrap:wrap;}
+  .av{width:44px; height:44px; border-radius:50%; flex:none; display:grid; place-items:center; color:#fff; font-weight:700; font-family:"Bricolage Grotesque"; background:var(--c);}
+  .byl-main .nm{font-size:14.5px; font-weight:700; display:flex; align-items:center; gap:6px;}
+  .verify{display:inline-flex; align-items:center; gap:3px; color:var(--c-health); font-size:10.5px; font-weight:600; font-family:"IBM Plex Mono";}
+  .byl-main .role{font-size:12.5px; color:var(--muted);}
+  .byl-meta{margin-left:auto; display:flex; align-items:center; gap:14px; font-family:"IBM Plex Mono"; font-size:12px; color:var(--muted);}
+  .share{display:flex; gap:7px;}
+  .sbtn{width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--white); display:grid; place-items:center; color:var(--ink-soft); cursor:pointer;}
+  .sbtn:hover{border-color:var(--c); color:var(--c);}
+
+  figure{margin:22px 0 0;}
+  .herofig .img{aspect-ratio:16/9; border-radius:var(--r); position:relative; overflow:hidden; box-shadow:var(--shadow); background:radial-gradient(120% 90% at 80% 0%, rgba(17,151,107,.34), transparent 55%), linear-gradient(200deg,#16322a,#0d1a16 78%);}
+  .herofig .img .pat{position:absolute; inset:0; opacity:.13; background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0); background-size:14px 14px;}
+  .herofig figcaption{font-size:12px; color:var(--muted); margin-top:9px; font-family:"IBM Plex Mono"; display:flex; gap:8px;}
+  .herofig figcaption .cr{margin-left:auto;}
+
+  /* quick answer */
+  .qa{margin:26px 0; border:1px solid var(--line); border-left:4px solid var(--c); border-radius:12px; background:var(--white); padding:16px 18px; box-shadow:var(--shadow);}
+  .qa .lbl{font-family:"IBM Plex Mono"; font-size:11px; font-weight:600; letter-spacing:.08em; color:var(--c); display:flex; align-items:center; gap:7px; margin-bottom:8px;}
+  .qa p{margin:0; font-size:16px; line-height:1.5;}
+
+  /* disclaimer (YMYL) */
+  .disclaimer{display:flex; gap:12px; align-items:flex-start; background:#FBF6E9; border:1px solid #EFE2C0; border-left:4px solid var(--c-business); border-radius:11px; padding:13px 16px; margin:22px 0; font-size:13px; color:#6b5a32; line-height:1.55;}
+  .disclaimer .di{flex:none; color:var(--c-business); margin-top:1px;}
+  .disclaimer b{color:#5a4a28;}
+
+  /* body */
+  .body{font-size:17px; line-height:1.72; color:#23202A;}
+  .body p{margin:0 0 19px;}
+  .body h2{font-size:23px; font-weight:800; margin:32px 0 12px;}
+  .pullquote{margin:28px 0; padding:4px 0 4px 22px; border-left:4px solid var(--c); font-family:"Bricolage Grotesque"; font-weight:500; font-size:21px; line-height:1.32;}
+  .pullquote .src{display:block; font-family:"IBM Plex Mono"; font-size:12px; font-weight:500; color:var(--muted); margin-top:10px;}
+
+  /* key takeaways (AEO) */
+  .takeaways{background:#EAF6F1; border:1px solid #CDE9DF; border-radius:12px; padding:16px 20px; margin:26px 0;}
+  .takeaways .tk-h{font-family:"IBM Plex Mono"; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--c-health); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .takeaways ul{margin:0; padding-left:20px;}
+  .takeaways li{margin-bottom:8px; font-size:14.5px; line-height:1.5;}
+  .takeaways li::marker{color:var(--c-health);}
+
+  /* module wrapper */
+  .module{margin:34px 0; padding-top:8px;}
+  .mod-label{font-family:"IBM Plex Mono"; font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:9px; margin-bottom:14px;}
+  .mod-label .bar{width:22px; height:3px; border-radius:2px; background:var(--c);}
+  .conditional-note{font-size:12px; color:var(--muted); font-family:"IBM Plex Mono"; background:var(--paper-2); border:1px dashed var(--line); border-radius:9px; padding:10px 13px; margin:30px 0;}
+
+  /* video */
+  .video{position:relative; aspect-ratio:16/9; border-radius:var(--r); overflow:hidden; background:linear-gradient(160deg,#16322a,#0c1813); box-shadow:var(--shadow); display:grid; place-items:center;}
+  .video .pat{position:absolute; inset:0; opacity:.1; background-image:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 4px);}
+  .video .play{width:66px; height:66px; border-radius:50%; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.4); display:grid; place-items:center; backdrop-filter:blur(4px); position:relative; z-index:2;}
+  .video .vlabel{position:absolute; left:16px; bottom:14px; color:#fff; z-index:2;}
+  .video .vlabel .vt{font-family:"Bricolage Grotesque"; font-weight:700; font-size:17px;}
+  .video .vlabel .vd{font-family:"IBM Plex Mono"; font-size:12px; color:#CFC8C0; margin-top:3px;}
+  .video .ytbug{position:absolute; right:14px; top:14px; z-index:2; background:rgba(0,0,0,.55); color:#fff; font-family:"IBM Plex Mono"; font-size:11px; padding:4px 9px; border-radius:5px; border:1px solid rgba(255,255,255,.2);}
+
+  /* map (clinic) */
+  .mapwrap{border-radius:var(--r); overflow:hidden; border:1px solid var(--line); box-shadow:var(--shadow);}
+  .mapbox{position:relative; height:260px; background-color:#E9E6DD;
+    background-image:linear-gradient(115deg, rgba(17,151,107,.10) 0 18%, transparent 18%),
+      repeating-linear-gradient(90deg,#E9E6DE 0 44px,#E1DDD2 44px 47px),
+      repeating-linear-gradient(0deg,#E9E6DE 0 44px,#E1DDD2 44px 47px);}
+  .mapbox .road{position:absolute; background:#F4F1EA;}
+  .mapbox .r1{left:0; right:0; top:54%; height:14px; transform:rotate(-4deg);}
+  .mapbox .r2{top:0; bottom:0; left:40%; width:12px;}
+  .mapbox .ring{position:absolute; left:50%; top:46%; width:26px; height:26px; border-radius:50%; transform:translate(-50%,-50%); background:rgba(17,151,107,.22); animation:mp 2s infinite;}
+  @keyframes mp{0%{box-shadow:0 0 0 0 rgba(17,151,107,.4);}70%{box-shadow:0 0 0 16px rgba(17,151,107,0);}100%{box-shadow:0 0 0 0 rgba(17,151,107,0);}}
+  .mapbox .pin{position:absolute; left:50%; top:46%; transform:translate(-50%,-100%); z-index:3;}
+  .map-bar{display:flex; align-items:center; gap:12px; padding:13px 16px; background:var(--white); border-top:1px solid var(--line); flex-wrap:wrap;}
+  .map-bar .mi{width:34px;height:34px;border-radius:8px;background:var(--c);display:grid;place-items:center;color:#fff;flex:none;}
+  .map-bar .mtitle{font-weight:700; font-size:14px;}
+  .map-bar .maddr{font-size:12px; color:var(--muted); font-family:"IBM Plex Mono"; margin-top:2px;}
+  .map-bar .mlink{margin-left:auto; font-size:13px; font-weight:600; color:var(--c); white-space:nowrap;}
+
+  /* quiz */
+  .engage{border:1px solid var(--line); border-radius:var(--r); background:var(--white); padding:20px; box-shadow:var(--shadow);}
+  .engage .eq{font-family:"Bricolage Grotesque"; font-weight:700; font-size:19px; margin-bottom:6px;}
+  .engage .eqs{font-size:13px; color:var(--muted); margin-bottom:14px;}
+  .opt{display:block; width:100%; text-align:left; background:var(--paper); border:1px solid var(--line); border-radius:11px; padding:12px 15px; margin-bottom:10px; cursor:pointer; font-family:"Inter"; transition:border-color .15s, background .15s;}
+  .opt:hover{border-color:var(--ink);}
+  .opt-row{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .opt-label{font-size:14.5px; font-weight:600;}
+  .opt .mark{font-family:"IBM Plex Mono"; font-size:13px; opacity:0;}
+  .quiz.answered .opt{cursor:default;}
+  .opt.correct{border-color:#13976B; background:#E8F5EF;} .opt.correct .mark{opacity:1; color:#0f7a59;}
+  .opt.wrong{border-color:var(--signal); background:#FDEFEE;} .opt.wrong .mark{opacity:1; color:var(--signal);}
+  .quiz-explain{max-height:0; overflow:hidden; opacity:0; transition:max-height .35s, opacity .35s; font-size:13.5px; color:var(--ink-soft); background:var(--paper); border-radius:10px; padding:0 14px; line-height:1.55;}
+  .quiz.answered .quiz-explain{max-height:200px; opacity:1; padding:12px 14px; margin-top:6px;}
+
+  /* faq */
+  .faq details{border:1px solid var(--line); border-radius:11px; background:var(--white); margin-bottom:10px; overflow:hidden;}
+  .faq summary{list-style:none; cursor:pointer; padding:14px 16px; font-weight:600; font-size:15.5px; display:flex; justify-content:space-between; align-items:center; gap:12px;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary .chev{transition:transform .2s; color:var(--c); flex:none; font-family:"IBM Plex Mono";}
+  .faq details[open] summary .chev{transform:rotate(45deg);}
+  .faq .ans{padding:0 16px 15px; color:var(--ink-soft); font-size:14.5px; line-height:1.6;}
+
+  /* references (E-E-A-T / GEO) */
+  .refs{margin:14px 0 0;}
+  .refs ol{margin:0; padding-left:20px; font-size:13px; color:var(--ink-soft);}
+  .refs li{margin-bottom:9px; line-height:1.5;}
+  .refs li::marker{font-family:"IBM Plex Mono"; color:var(--muted);}
+
+  /* tags + author + booking */
+  .tags{display:flex; flex-wrap:wrap; gap:8px; margin:30px 0;}
+  .tag{font-size:12.5px; font-weight:600; color:var(--ink-soft); background:var(--paper-2); border:1px solid var(--line); padding:6px 12px; border-radius:20px;}
+  .tag:hover{border-color:var(--c); color:var(--c);}
+  .authorcard{display:flex; gap:16px; align-items:flex-start; background:var(--white); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px; box-shadow:var(--shadow); margin:6px 0 8px;}
+  .authorcard .av{width:56px; height:56px; font-size:19px;}
+  .authorcard .ab-nm{font-family:"Bricolage Grotesque"; font-weight:700; font-size:17px; display:flex; align-items:center; gap:7px;}
+  .authorcard .ab-role{font-size:12.5px; color:var(--muted); margin:2px 0 0;}
+  .authorcard p{margin:9px 0 0; font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+  .creds{display:flex; flex-wrap:wrap; gap:7px; margin-top:10px;}
+  .cred{font-family:"IBM Plex Mono"; font-size:11px; color:var(--ink-soft); background:#EAF6F1; border:1px solid #CDE9DF; padding:3px 9px; border-radius:6px;}
+
+  .bookcta{margin:30px 0 0; border-radius:var(--r); padding:24px; color:#fff; background:radial-gradient(120% 100% at 0% 0%, rgba(17,151,107,.5), transparent 55%), linear-gradient(160deg,#123a2e,#0e1f19); display:flex; align-items:center; gap:18px; flex-wrap:wrap; box-shadow:var(--shadow);}
+  .bookcta .cc-t{font-family:"Bricolage Grotesque"; font-weight:800; font-size:21px;}
+  .bookcta .cc-s{font-size:13.5px; color:#Bfe0d4; margin-top:5px; max-width:44ch;}
+  .bookcta .cc-b{margin-left:auto; background:var(--c-health); color:#fff; border:none; border-radius:24px; padding:11px 22px; font-weight:600; font-size:14.5px; cursor:pointer; font-family:"Inter";}
+  .bookcta .cc-b:hover{filter:brightness(1.1);}
+
+  /* ads */
+  .adunit{display:flex; flex-direction:column; align-items:center; gap:7px; margin:30px 0;}
+  .adlabel{font-family:"IBM Plex Mono"; font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:#B0A99F;}
+  .adbox{width:100%; border:1px dashed #D8D1C5; border-radius:12px; background:#F5F1E8; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; text-align:center; padding:18px; color:var(--muted);}
+  .adbox .adbug{width:24px;height:24px;border-radius:7px;background:linear-gradient(150deg,#FF5A4F,#C4221C);margin-bottom:3px;}
+  .adbox .ad-cta{font-family:"Bricolage Grotesque"; font-weight:700; font-size:15px; color:#5A5048;}
+  .adbox .size{font-family:"IBM Plex Mono"; font-size:11.5px; color:#9A9388;}
+  .ad-incontent .adbox{min-height:104px;}
+  .ad-mpu .adbox{min-height:250px;}
+
+  /* sidebar */
+  .sidebar{display:flex; flex-direction:column; gap:26px;}
+  @media(min-width:1000px){.sidebar .sticky{position:sticky; top:80px; display:flex; flex-direction:column; gap:26px;}}
+  .side-h{font-family:"IBM Plex Mono"; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:9px; margin-bottom:13px;}
+  .side-h .bar{width:20px;height:3px;border-radius:2px;background:var(--c);}
+  .askcard{background:var(--white); border:1px solid var(--line); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); border-left:4px solid var(--c-health);}
+  .askcard .jt{font-family:"Bricolage Grotesque"; font-weight:700; font-size:16px;}
+  .askcard .js{font-size:12.5px; color:var(--muted); margin:5px 0 13px;}
+  .askcard .jb{width:100%; background:var(--c-health); color:#fff; border:none; border-radius:9px; padding:9px; font-weight:600; font-size:13.5px; cursor:pointer; font-family:"Inter";}
+  .mostread{counter-reset:mr;}
+  .mr{display:flex; gap:13px; padding:12px 0; border-top:1px solid var(--line); align-items:flex-start;}
+  .mr:first-child{border-top:none; padding-top:0;}
+  .mr .n{counter-increment:mr; font-family:"Bricolage Grotesque"; font-weight:800; font-size:18px; color:var(--line); min-width:24px;}
+  .mr:hover .mh{color:var(--c);}
+  .mr .mh{font-size:14px; font-weight:600; line-height:1.3;}
+  .mr .mm{font-family:"IBM Plex Mono"; font-size:10.5px; color:var(--muted); margin-top:4px;}
+
+  footer{background:var(--ink); color:#C9C3BC; padding:40px 0 26px; margin-top:8px;}
+  .fbottom{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; font-size:12px; color:#8E8882;}
+  footer .name{font-family:"Bricolage Grotesque"; font-weight:800; font-size:20px; color:#fff;}
+  footer .name .tv{color:var(--signal);}
+  footer .fl{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 22px;}
+  footer .fl span{font-size:12.5px; border:1px solid rgba(255,255,255,.16); padding:4px 11px; border-radius:20px;}
+
+  @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto;} .ring{animation:none;} }
+</style>
+</head>
+<body>
+
+<div class="note-banner"><div class="wrap">Health (YMYL) article variant — sample general-health content for design only, not medical advice. The Gallery module is intentionally omitted here to show conditional “if available” rendering.</div></div>
+
+<header class="mast"><div class="wrap">
+  <a class="brand" href="#"><span class="bug" aria-hidden="true"></span><span><span class="name">Suman<span class="tv">TV</span></span><span class="tag">Health</span></span></a>
+  <span class="pillcat">✚ Health</span>
+  <span class="spacer"></span>
+  <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Search symptoms, doctors, conditions…" aria-label="Search"/></label>
+  <button class="btn btn-join">Ask a doctor</button>
+</div></header>
+
+<div class="wrap">
+  <div class="breadcrumb"><a href="#">Home</a> <span>›</span> <a href="#">Health</a> <span>›</span> <a href="#">Nutrition</a> <span>›</span> <span>Intermittent fasting &amp; thyroid</span></div>
+
+  <div class="layout">
+    <!-- ===================== MAIN ===================== -->
+    <article>
+      <div class="kicker">
+        <span class="ctag" style="background:var(--c)">Health · Nutrition</span>
+        <span class="upd">Reviewed 6 days ago</span>
+      </div>
+
+      <h1 class="title">Is intermittent fasting safe if you have thyroid issues?</h1>
+      <p class="dek">It's one of the most-asked questions in our Health community. An endocrinologist explains who can try it, what to watch for, and when to check with your doctor first.</p>
+
+      <!-- YMYL: medical review + fact-check signal -->
+      <div class="review-row">
+        <span class="reviewed"><span class="vi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span> Medically reviewed by <b>Dr. Padma Rao, MD (Endocrinology)</b></span>
+        <span class="factchk">● Fact-checked by the SumanTV Health desk</span>
+      </div>
+
+      <div class="byline">
+        <span class="av">PR</span>
+        <div class="byl-main">
+          <div class="nm">Dr. Padma Rao <span class="verify">✓ Verified</span></div>
+          <div class="role">Consultant Endocrinologist · 18 years' experience</div>
+        </div>
+        <div class="byl-meta">
+          <span>6 min read</span>
+          <div class="share" aria-label="Share">
+            <button class="sbtn" title="Share on WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 5 5.1-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20z"/></svg></button>
+            <button class="sbtn" title="Copy link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></button>
+            <button class="sbtn" title="Save"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <figure class="herofig">
+        <div class="img"><div class="pat"></div></div>
+        <figcaption><span>Meal timing can interact with thyroid medication — timing matters.</span><span class="cr">Photo · SumanTV Health</span></figcaption>
+      </figure>
+
+      <!-- QUICK ANSWER (AEO) -->
+      <div class="qa">
+        <div class="lbl">⚡ QUICK ANSWER</div>
+        <p>For many people, intermittent fasting is reasonable. But if you take thyroid medication such as levothyroxine, timing is the catch — it's usually taken on an empty stomach well before food. A long fasting window can disrupt that routine, so anyone with a thyroid condition should plan it with their doctor and recheck TSH after a few months.</p>
+      </div>
+
+      <!-- DISCLAIMER (YMYL) -->
+      <div class="disclaimer">
+        <span class="di" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+        <span><b>General information, not medical advice.</b> This article is reviewed by a medical professional but is not a substitute for a consultation. Always check with your own doctor before changing your diet or medication, especially if you take thyroid medicine or have another diagnosed condition.</span>
+      </div>
+
+      <!-- BODY -->
+      <div class="body">
+        <p>Intermittent fasting has become one of the most popular eating patterns in our Health community — and one of the most common follow-up questions is whether it's safe for people managing a thyroid condition. The honest answer is that it depends on the individual, and the details matter.</p>
+        <p>The main consideration is medication timing. Thyroid hormone replacement is usually taken on an empty stomach, with a gap before eating or drinking anything other than water. A fasting schedule that shifts when you eat can also shift when you take your medicine, and inconsistent timing can affect how stable your levels stay.</p>
+        <div class="pullquote">“The fasting itself is rarely the problem. It's the routine around medication and monitoring that needs care.”<span class="src">— Dr. Padma Rao, Consultant Endocrinologist</span></div>
+        <p>For people who are otherwise well, a moderate eating window is often manageable with a little planning. People who are pregnant, underweight, or managing other conditions such as diabetes need more individualised guidance, which is why a conversation with your doctor comes first.</p>
+        <h2>What to watch for</h2>
+        <p>Pay attention to new or worsening tiredness, changes in weight, palpitations, or feeling unusually cold — and mention any of these to your doctor. A simple way to stay safe is to keep medication timing consistent and to recheck thyroid levels a few months after any major change to your eating pattern.</p>
+      </div>
+
+      <!-- KEY TAKEAWAYS (AEO) -->
+      <div class="takeaways">
+        <div class="tk-h">✚ Key takeaways</div>
+        <ul>
+          <li>Fasting is often reasonable for otherwise-healthy people, with planning.</li>
+          <li>Keep thyroid-medication timing consistent — this matters most.</li>
+          <li>Recheck TSH a few months after changing your eating pattern.</li>
+          <li>Pregnancy, diabetes, or being underweight need individual advice — ask your doctor first.</li>
+        </ul>
+      </div>
+
+      <!-- IN-CONTENT AD -->
+      <div class="adunit ad-incontent">
+        <span class="adlabel">Advertisement</span>
+        <div class="adbox"><span class="adbug" aria-hidden="true"></span><span class="ad-cta">In-article placement</span><span class="size">728 × 90 · Responsive</span></div>
+      </div>
+
+      <!-- VIDEO (available) -->
+      <section class="module">
+        <div class="mod-label"><span class="bar"></span>Watch · the doctor explains</div>
+        <div class="video">
+          <div class="pat"></div>
+          <span class="ytbug">▶ YouTube</span>
+          <div class="play" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+          <div class="vlabel"><div class="vt">Dr. Padma Rao answers in 5 minutes</div><div class="vd">▶ 5:18 · SumanTV Health</div></div>
+        </div>
+      </section>
+
+      <!-- GALLERY: intentionally omitted -> conditional note -->
+      <div class="conditional-note">▢ Gallery module — not shown. This article has no image gallery, so the block doesn't render. (On a recipe or hospital-visit story, it would appear here.)</div>
+
+      <!-- MAP (available) = clinic, tied to booking -->
+      <section class="module">
+        <div class="mod-label"><span class="bar"></span>Where to consult</div>
+        <div class="mapwrap">
+          <div class="mapbox">
+            <span class="road r1"></span><span class="road r2"></span>
+            <span class="ring" aria-hidden="true"></span>
+            <span class="pin" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="var(--c-health)" stroke="#fff" stroke-width="1.4"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.4" fill="#fff" stroke="none"/></svg></span>
+          </div>
+          <div class="map-bar">
+            <span class="mi"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2"/></svg></span>
+            <div><div class="mtitle">Dr. Padma Rao's Clinic · Endocrinology</div><div class="maddr">Jubilee Hills, Hyderabad · Mon–Sat, 10am–6pm</div></div>
+            <a class="mlink" href="https://www.google.com/maps/search/?api=1&query=endocrinologist+Jubilee+Hills+Hyderabad" target="_blank" rel="noopener">Directions →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUIZ (myth-buster) -->
+      <section class="module">
+        <div class="mod-label"><span class="bar"></span>Myth or fact · quick check</div>
+        <div class="engage quiz" id="quiz">
+          <div class="eq">“Intermittent fasting can cure an underactive thyroid.”</div>
+          <div class="eqs">Tap what you think:</div>
+          <button class="opt" data-correct="false" onclick="answer(this)"><div class="opt-row"><span class="opt-label">Fact</span><span class="mark">✕</span></div></button>
+          <button class="opt" data-correct="true" onclick="answer(this)"><div class="opt-row"><span class="opt-label">Myth</span><span class="mark">✓</span></div></button>
+          <div class="quiz-explain">Myth. Fasting does not cure hypothyroidism. The condition is managed with medication and monitoring — fasting may fit around that for some people, but it isn't a treatment. Always follow your doctor's plan.</div>
+        </div>
+      </section>
+
+      <!-- FAQ (AEO / GEO) -->
+      <section class="module">
+        <div class="mod-label"><span class="bar"></span>Frequently asked</div>
+        <div class="faq">
+          <details open><summary>Can I take my thyroid tablet during a fast? <span class="chev">+</span></summary><div class="ans">Usually yes — water-only fasting periods are generally fine for taking levothyroxine on an empty stomach, which is how it's normally advised. Confirm your exact timing with your doctor.</div></details>
+          <details><summary>How long should I wait to eat after the tablet? <span class="chev">+</span></summary><div class="ans">A gap before food is commonly advised so absorption isn't affected. Your doctor will tell you the interval that's right for you.</div></details>
+          <details><summary>When should I avoid fasting altogether? <span class="chev">+</span></summary><div class="ans">If you're pregnant, underweight, managing diabetes, or feel unwell while fasting, speak to your doctor before continuing.</div></details>
+        </div>
+      </section>
+
+      <!-- REFERENCES (E-E-A-T / GEO citations) -->
+      <section class="module">
+        <div class="mod-label"><span class="bar"></span>Sources &amp; references</div>
+        <div class="refs">
+          <ol>
+            <li>General guidance on thyroid hormone replacement and food timing — <a href="#">American Thyroid Association</a> (patient resources).</li>
+            <li>Overview of intermittent fasting and metabolic health — <a href="#">World Health Organization</a> nutrition guidance.</li>
+            <li>Reviewed against SumanTV Health editorial standards. <a href="#">See our review process →</a></li>
+          </ol>
+        </div>
+      </section>
+
+      <div class="tags">
+        <a class="tag" href="#">#Thyroid</a><a class="tag" href="#">#IntermittentFasting</a><a class="tag" href="#">#Nutrition</a><a class="tag" href="#">#Endocrinology</a>
+      </div>
+
+      <!-- AUTHOR (E-E-A-T with credentials) -->
+      <div class="authorcard">
+        <span class="av">PR</span>
+        <div>
+          <div class="ab-nm">Dr. Padma Rao <span class="verify">✓ Verified</span></div>
+          <div class="ab-role">Consultant Endocrinologist · 18 years' experience · Hyderabad</div>
+          <div class="creds"><span class="cred">MD, Endocrinology</span><span class="cred">Reg. No. TSMC-XXXXX</span><span class="cred">SumanTV Health Network</span></div>
+          <p>Dr. Padma Rao treats thyroid, diabetes, and metabolic conditions, and answers community questions on SumanTV Health. Profile reviewed and verified by the SumanTV Health desk.</p>
+        </div>
+      </div>
+
+      <!-- BOOKING CTA (lead-gen monetization) -->
+      <div class="bookcta">
+        <div><div class="cc-t">Have a thyroid question of your own?</div><div class="cc-s">Ask Dr. Padma Rao in the Health community, or book a consultation — answered by verified doctors.</div></div>
+        <button class="cc-b">Book a consultation</button>
+      </div>
+    </article>
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <div class="sticky">
+        <div class="adunit ad-mpu" style="margin:0;">
+          <span class="adlabel">Advertisement</span>
+          <div class="adbox"><span class="adbug" aria-hidden="true"></span><span class="ad-cta">Premium placement</span><span class="size">300 × 250 · MPU</span></div>
+        </div>
+
+        <div class="askcard">
+          <div class="jt">Ask a verified doctor</div>
+          <div class="js">Post a question to the Health community — 24.6L members, answered on camera.</div>
+          <button class="jb">Ask your question</button>
+        </div>
+
+        <div>
+          <div class="side-h"><span class="bar"></span>Most read in Health</div>
+          <div class="mostread">
+            <a class="mr" href="#"><span class="n"></span><div><div class="mh">What's a normal blood pressure reading after 40?</div><div class="mm">1.1M views</div></div></a>
+            <a class="mr" href="#"><span class="n"></span><div><div class="mh">How much protein does a vegetarian really need?</div><div class="mm">880K views</div></div></a>
+            <a class="mr" href="#"><span class="n"></span><div><div class="mh">Early-monsoon dengue: what to watch for</div><div class="mm">760K views</div></div></a>
+            <a class="mr" href="#"><span class="n"></span><div><div class="mh">5 simple habits for better sleep, by a doctor</div><div class="mm">1.4M views</div></div></a>
+          </div>
+        </div>
+
+        <div class="adunit ad-mpu" style="margin:0;">
+          <span class="adlabel">Advertisement</span>
+          <div class="adbox"><span class="adbug" aria-hidden="true"></span><span class="ad-cta">Sponsored placement</span><span class="size">300 × 250 · MPU</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer><div class="wrap">
+  <div class="name">Suman<span class="tv">TV</span> <span style="color:var(--c-health)">Health</span></div>
+  <div class="fl"><span>తెలుగు</span><span>தமிழ்</span><span>ಕನ್ನಡ</span><span>हिन्दी</span></div>
+  <div class="fbottom"><span>© 2026 SumanTV Digital Media Network · Hyderabad</span><span>Editorial &amp; medical review standards · Privacy · Terms</span></div>
+</div></footer>
+
+<script>
+  function answer(btn){
+    var quiz = btn.closest('.quiz');
+    if(quiz.classList.contains('answered')) return;
+    quiz.classList.add('answered');
+    var correct = btn.getAttribute('data-correct') === 'true';
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    if(!correct){
+      quiz.querySelectorAll('.opt').forEach(function(o){
+        if(o.getAttribute('data-correct') === 'true') o.classList.add('correct');
+      });
+    }
+  }
+</script>
+</body>
+</html>

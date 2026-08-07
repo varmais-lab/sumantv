@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ADI Package Builder — SumanTV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#191C21;
+  --panel:#21252B;
+  --panel2:#282D35;
+  --field:#14171B;
+  --line:#353B45;
+  --line2:#454C58;
+  --ink:#E6E9ED;
+  --dim:#8C949F;
+  --dimmer:#666D77;
+
+  --b1:#C9CED6; /* delivery  */
+  --b2:#E5B93C; /* identity  */
+  --b3:#35C4D9; /* series    */
+  --b4:#4FB86A; /* synopsis  */
+  --b5:#C264B6; /* credits   */
+  --b6:#D9534A; /* class.    */
+  --b7:#4E7FD1; /* media     */
+
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--b3);outline-offset:2px}
+
+/* ---------- slate header ---------- */
+.slate{position:sticky;top:0;z-index:30;background:var(--panel);border-bottom:1px solid var(--line)}
+.slate-in{max-width:1560px;margin:0 auto;padding:14px 22px 0;
+  display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.mark{font-family:var(--cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  font-size:12px;color:var(--bg);background:var(--b1);padding:3px 8px;border-radius:2px;white-space:nowrap}
+.hgroup h1{font-family:var(--cond);font-weight:700;font-size:23px;letter-spacing:.01em;margin:0;line-height:1.1}
+.hgroup p{margin:2px 0 0;color:var(--dim);font-size:12.5px}
+.slate-id{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--dim);
+  text-align:right;line-height:1.75;min-width:230px}
+.slate-id b{color:var(--ink);font-weight:500}
+
+/* signature: SMPTE readiness strip */
+.bars{max-width:1560px;margin:12px auto 0;padding:0 22px;display:flex;gap:2px}
+.bar{flex:1;height:5px;background:var(--seg);opacity:.18;border-radius:1px;
+  transition:opacity .25s ease;position:relative}
+.bar.on{opacity:1}
+.bar span{position:absolute;top:9px;left:0;font-family:var(--cond);font-size:9.5px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--dimmer);white-space:nowrap}
+.bar.on span{color:var(--dim)}
+.barspace{height:26px}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1560px;margin:0 auto;padding:20px 22px 90px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,510px);gap:22px;align-items:start}
+@media(max-width:1080px){.wrap{grid-template-columns:1fr}}
+
+/* ---------- form ---------- */
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:5px;margin-bottom:14px;overflow:hidden}
+.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;
+  padding:12px 15px;background:var(--panel2);user-select:none}
+.sec>summary::-webkit-details-marker{display:none}
+.sec>summary:hover{background:#2E343D}
+.tab{width:4px;height:19px;border-radius:2px;background:var(--seg);flex:none}
+.sec h2{font-family:var(--cond);font-weight:700;font-size:14.5px;letter-spacing:.09em;
+  text-transform:uppercase;margin:0}
+.hint{color:var(--dim);font-size:12px;font-weight:400;font-family:var(--sans);
+  letter-spacing:0;text-transform:none;margin-left:auto;padding-left:12px;text-align:right}
+.chev{flex:none;color:var(--dimmer);transition:transform .2s;font-size:11px}
+.sec[open] .chev{transform:rotate(90deg)}
+.body{padding:16px 15px 18px}
+
+.grid{display:grid;gap:13px 14px}
+.c2{grid-template-columns:1fr 1fr}
+.c3{grid-template-columns:1fr 1fr 1fr}
+.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:640px){.c2,.c3,.c4{grid-template-columns:1fr}}
+.span2{grid-column:span 2}
+@media(max-width:640px){.span2{grid-column:span 1}}
+
+label.f{display:block}
+label.f>.lb{display:block;font-family:var(--cond);font-weight:600;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+label.f>.lb i{font-style:normal;color:var(--b6);margin-left:3px}
+label.f>.lb em{font-style:normal;color:var(--dimmer);text-transform:none;letter-spacing:.02em;
+  font-family:var(--sans);font-size:11px;margin-left:6px}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  width:100%;background:var(--field);border:1px solid var(--line);border-radius:3px;
+  padding:8px 10px;font-family:var(--mono);font-size:13px}
+textarea{resize:vertical;min-height:70px;line-height:1.55;font-family:var(--sans);font-size:13.5px}
+input:hover,select:hover,textarea:hover{border-color:var(--line2)}
+input:focus,select:focus,textarea:focus{border-color:var(--b3);outline:none;
+  box-shadow:0 0 0 3px rgba(53,196,217,.13)}
+input.bad,textarea.bad{border-color:var(--b6)}
+select{cursor:pointer;font-family:var(--sans)}
+.tel{font-family:var(--sans)}
+
+.check{display:flex;align-items:center;gap:9px;cursor:pointer;color:var(--dim);font-size:13px;padding:2px 0}
+.check input{accent-color:var(--b3);width:15px;height:15px;cursor:pointer;flex:none}
+.check:hover{color:var(--ink)}
+
+.mini{font-size:12px;color:var(--dimmer);margin:9px 0 0;line-height:1.5}
+
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:132px 92px minmax(0,1fr) 32px;gap:8px;align-items:center}
+@media(max-width:640px){.row{grid-template-columns:1fr 1fr;grid-auto-rows:auto}
+  .row>*:nth-child(3){grid-column:span 2}}
+.x{background:none;border:1px solid var(--line);color:var(--dimmer);border-radius:3px;
+  height:34px;cursor:pointer;font-size:15px;line-height:1}
+.x:hover{border-color:var(--b6);color:var(--b6)}
+.add{background:none;border:1px dashed var(--line2);color:var(--dim);border-radius:3px;
+  padding:8px 13px;cursor:pointer;font-family:var(--cond);font-weight:600;font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;align-self:flex-start;margin-top:9px}
+.add:hover{border-color:var(--b3);color:var(--b3);border-style:solid}
+
+/* ---------- right rail ---------- */
+.rail{position:sticky;top:112px}
+@media(max-width:1080px){.rail{position:static}}
+.railbox{background:var(--panel);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.tabs{display:flex;background:var(--panel2);border-bottom:1px solid var(--line)}
+.tabs button{flex:1;background:none;border:none;border-bottom:2px solid transparent;
+  padding:11px 6px;cursor:pointer;color:var(--dim);font-family:var(--cond);font-weight:600;
+  font-size:12px;letter-spacing:.11em;text-transform:uppercase}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--b3)}
+.tabs .cnt{font-family:var(--mono);font-size:10.5px;margin-left:5px;padding:1px 5px;border-radius:8px;
+  background:var(--b6);color:#fff;letter-spacing:0}
+.tabs .cnt.ok{background:var(--line);color:var(--dim)}
+.pane{display:none;max-height:calc(100vh - 260px);overflow:auto}
+.pane.on{display:block}
+@media(max-width:1080px){.pane{max-height:520px}}
+
+/* package tree */
+.tree{padding:14px 15px}
+.node{border-left:1px solid var(--line);padding:0 0 0 13px;margin-left:5px}
+.node:first-child{border-left:none;padding-left:0;margin-left:0}
+.nd{padding:8px 0 9px;border-bottom:1px dashed var(--line)}
+.nd:last-child{border-bottom:none}
+.nd .k{font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--seg,var(--dim))}
+.nd .n{font-family:var(--mono);font-size:12.5px;color:var(--ink);word-break:break-all;margin-top:3px}
+.nd .m{font-family:var(--mono);font-size:11px;color:var(--dimmer);margin-top:2px;word-break:break-all}
+.nd .m b{color:var(--dim);font-weight:400}
+
+/* xml */
+pre.xml{margin:0;padding:14px 15px 14px 0;font-family:var(--mono);font-size:11.5px;line-height:1.62;
+  counter-reset:ln;white-space:pre;overflow-x:auto}
+pre.xml .l{display:block;white-space:pre}
+pre.xml .l::before{counter-increment:ln;content:counter(ln);display:inline-block;width:38px;
+  padding-right:11px;text-align:right;color:#4A515C;user-select:none}
+.t{color:#7FB4E8}.a{color:#C9A6DA}.v{color:#8FCF9C}.c{color:#5E6773;font-style:italic}
+
+/* checks */
+.checks{padding:6px 0}
+.chk{display:flex;gap:10px;padding:10px 15px;border-bottom:1px solid var(--line);align-items:flex-start}
+.chk:last-child{border-bottom:none}
+.chk .dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex:none}
+.chk.err .dot{background:var(--b6)}
+.chk.warn .dot{background:var(--b2)}
+.chk.ok .dot{background:var(--b4)}
+.chk .tx{font-size:13px}
+.chk .tx b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);display:block}
+.chk .tx span{color:var(--dim)}
+
+/* actions */
+.acts{display:flex;flex-wrap:wrap;gap:8px;padding:13px 15px;background:var(--panel2);
+  border-top:1px solid var(--line)}
+.btn{border:1px solid var(--line2);background:var(--panel);color:var(--ink);border-radius:3px;
+  padding:9px 14px;cursor:pointer;font-family:var(--cond);font-weight:600;font-size:12.5px;
+  letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.btn:hover{border-color:var(--b3);color:var(--b3)}
+.btn.pri{background:var(--b3);border-color:var(--b3);color:#0E1114}
+.btn.pri:hover{background:#4AD3E7;border-color:#4AD3E7;color:#0E1114}
+.btn.pri[disabled]{background:var(--line);border-color:var(--line);color:var(--dimmer);cursor:not-allowed}
+.btn.gh{border-style:dashed;color:var(--dim)}
+.btn.gh:hover{border-style:solid}
+
+/* batch */
+.batch textarea{font-family:var(--mono);font-size:12px;min-height:150px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);
+  background:var(--b4);color:#0E1114;font-family:var(--cond);font-weight:700;font-size:13px;
+  letter-spacing:.07em;text-transform:uppercase;padding:11px 20px;border-radius:3px;
+  opacity:0;pointer-events:none;transition:all .25s ease;z-index:60}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{background:var(--b6);color:#fff}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="slate">
+  <div class="slate-in">
+    <div class="mark">SumanTV</div>
+    <div class="hgroup">
+      <h1>ADI Package Builder</h1>
+      <p>Fill the slate, download a valid CableLabs VOD 1.1 XML. No hand-editing.</p>
+    </div>
+    <div class="slate-id">
+      <div>ASSET_NAME &nbsp;<b id="sl-name">—</b></div>
+      <div>ASSET_ID &nbsp;<b id="sl-id">—</b></div>
+      <div>RUN_TIME &nbsp;<b id="sl-rt">—</b></div>
+    </div>
+  </div>
+  <div class="bars" id="bars"></div>
+  <div class="barspace"></div>
+</header>
+
+<main class="wrap">
+<div>
+
+<!-- 1 DELIVERY -->
+<details class="sec" open style="--seg:var(--b1)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Delivery</h2>
+    <span class="hint">Set once, reuse for every episode</span></summary>
+  <div class="body">
+    <div class="grid c3">
+      <label class="f"><span class="lb">Provider <i>*</i></span><input type="text" data-k="provider"></label>
+      <label class="f"><span class="lb">Provider ID <i>*</i></span><input type="text" data-k="providerId"></label>
+      <label class="f"><span class="lb">Product <i>*</i></span><input type="text" data-k="product"></label>
+      <label class="f"><span class="lb">Spec version</span><input type="text" data-k="specVersion"></label>
+      <label class="f"><span class="lb">Creation date <i>*</i></span><input type="date" data-k="creationDate"></label>
+      <label class="f"><span class="lb">Verb <em>blank = new</em></span>
+        <select data-k="verb"><option value="">(blank)</option><option>DELETE</option></select></label>
+      <label class="f"><span class="lb">Version major</span><input type="text" data-k="versionMajor"></label>
+      <label class="f"><span class="lb">Version minor</span><input type="text" data-k="versionMinor"></label>
+    </div>
+  </div>
+</details>
+
+<!-- 2 IDENTITY -->
+<details class="sec" open style="--seg:var(--b2)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Identity</h2>
+    <span class="hint">Names and IDs for all five assets are derived from these two</span></summary>
+  <div class="body">
+    <div class="grid c2">
+      <label class="f"><span class="lb">Asset name prefix <i>*</i></span>
+        <input type="text" data-k="prefix" placeholder="A_Sudhakar_S1_E1"></label>
+      <label class="f"><span class="lb">First asset ID <i>*</i> <em>tail number auto-increments</em></span>
+        <input type="text" data-k="assetIdBase" placeholder="CIST2026070909453201"></label>
+    </div>
+    <p class="mini">Letters, digits and underscores only in the prefix. Each asset in the package takes the next ID in sequence — check the Package tab on the right to see what will be written.</p>
+  </div>
+</details>
+
+<!-- 3 SERIES -->
+<details class="sec" open style="--seg:var(--b3)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Series &amp; episode</h2>
+    <span class="hint">Title = series name. Episode name is separate.</span></summary>
+  <div class="body">
+    <div class="grid c2">
+      <label class="f span2"><span class="lb">Series title — English <i>*</i></span>
+        <input type="text" data-k="seriesTitleEng" placeholder="Why Society Needs Doctors Like Him"></label>
+      <label class="f span2"><span class="lb">Series title — Telugu</span>
+        <input type="text" class="tel" data-k="seriesTitleTel" placeholder="ఇలాంటి డాక్టర్లే సమాజానికి అవసరం"></label>
+      <label class="f span2"><span class="lb">Episode name — English <i>*</i></span>
+        <input type="text" data-k="episodeNameEng" placeholder="The Inspiring Journey of Dr. Appala Sudhakar"></label>
+      <label class="f span2"><span class="lb">Episode name — Telugu</span>
+        <input type="text" class="tel" data-k="episodeNameTel"></label>
+      <label class="f"><span class="lb">Season number <i>*</i></span><input type="text" data-k="seasonId"></label>
+      <label class="f"><span class="lb">Episode number <i>*</i></span><input type="text" data-k="episodeId"></label>
+    </div>
+    <p class="mini">Drop the season and episode numbers and the platform ingests this as a standalone film instead of an episode.</p>
+  </div>
+</details>
+
+<!-- 4 SYNOPSIS -->
+<details class="sec" open style="--seg:var(--b4)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Synopsis</h2>
+    <span class="hint">Describe the episode, not the series</span></summary>
+  <div class="body">
+    <div class="grid">
+      <label class="f"><span class="lb">Short <em>optional, one line</em></span>
+        <input type="text" data-k="summaryShort"></label>
+      <label class="f"><span class="lb">Medium — English <i>*</i></span>
+        <textarea data-k="summaryMedium"></textarea></label>
+      <label class="f"><span class="lb">Long — English</span>
+        <textarea data-k="summaryLong"></textarea></label>
+      <label class="check"><input type="checkbox" data-k="useTeluguSummary"> Add Telugu synopsis</label>
+      <div id="telsum" hidden class="grid">
+        <label class="f"><span class="lb">Medium — Telugu</span>
+          <textarea class="tel" data-k="summaryMediumTel"></textarea></label>
+        <label class="f"><span class="lb">Long — Telugu</span>
+          <textarea class="tel" data-k="summaryLongTel"></textarea></label>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- 5 CREDITS -->
+<details class="sec" style="--seg:var(--b5)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Credits</h2>
+    <span class="hint">Write names as Lastname,Firstname</span></summary>
+  <div class="body">
+    <div class="rows" id="credits"></div>
+    <button class="add" id="addCredit">+ Add credit</button>
+    <p class="mini">The Id attribute is numbered automatically within each role, in the order listed here.</p>
+  </div>
+</details>
+
+<!-- 6 CLASSIFICATION -->
+<details class="sec" style="--seg:var(--b6)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Classification</h2>
+    <span class="hint">Run time, rating, genre, catalogue placement</span></summary>
+  <div class="body">
+    <div class="grid c4">
+      <label class="f"><span class="lb">Run time <i>*</i> <em>hh:mm:ss</em></span>
+        <input type="text" data-k="runTime" placeholder="01:09:18"></label>
+      <label class="f"><span class="lb">Display run time</span>
+        <input type="text" data-k="displayRunTime" placeholder="01:09"></label>
+      <label class="f"><span class="lb">Rating type</span>
+        <select data-k="ratingType">
+          <option value="">(none)</option><option>AGE</option><option>CBFC</option><option>MPAA</option>
+        </select></label>
+      <label class="f"><span class="lb">Rating</span><input type="text" data-k="rating"></label>
+      <label class="f"><span class="lb">Year <i>*</i></span><input type="text" data-k="year"></label>
+      <label class="f"><span class="lb">Category <i>*</i></span><input type="text" data-k="category"></label>
+      <label class="f"><span class="lb">Suggested price</span><input type="text" data-k="suggestedPrice"></label>
+      <label class="f"><span class="lb">Genre <em>comma-separated</em></span>
+        <input type="text" data-k="genre" placeholder="Health, Talk Show"></label>
+    </div>
+    <p class="mini" style="margin-bottom:12px">Leave display run time blank and it is derived from run time.</p>
+    <label class="check"><input type="checkbox" data-k="useLicensing"> Add a licensing window</label>
+    <div id="licwrap" hidden class="grid c2" style="margin-top:11px">
+      <label class="f"><span class="lb">Window start</span>
+        <input type="text" data-k="licStart" placeholder="2026-07-01 00:00:00"></label>
+      <label class="f"><span class="lb">Window end</span>
+        <input type="text" data-k="licEnd" placeholder="2036-07-01 00:00:00"></label>
+    </div>
+  </div>
+</details>
+
+<!-- 7 MEDIA -->
+<details class="sec" open style="--seg:var(--b7)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Media files</h2>
+    <span class="hint">Filenames must match the files shipped in the package</span></summary>
+  <div class="body">
+    <div class="grid c2">
+      <label class="f"><span class="lb">Feature video <i>*</i></span>
+        <input type="text" data-k="featureFile" placeholder="DR_A_Sudhakar.mp4"></label>
+      <label class="f"><span class="lb">Show poster <i>*</i></span>
+        <input type="text" data-k="posterFile" placeholder="A_Sudhakar_vod_cover.png"></label>
+    </div>
+    <div style="margin-top:13px;display:flex;flex-direction:column;gap:3px">
+      <label class="check"><input type="checkbox" data-k="usePreview"> Include a trailer</label>
+      <label class="check"><input type="checkbox" data-k="useEpg"> Include a landscape EPG image</label>
+    </div>
+    <div class="grid c2" style="margin-top:11px">
+      <label class="f" id="pvwrap" hidden><span class="lb">Trailer video</span>
+        <input type="text" data-k="previewFile" placeholder="DR_A_Sudhakar_trailer.mp4"></label>
+      <label class="f" id="epgwrap" hidden><span class="lb">EPG image <em>Type: episode_poster</em></span>
+        <input type="text" data-k="epgFile" placeholder="A_Sudhakar_epg_cover.png"></label>
+    </div>
+    <p class="mini">A filename listed here that is not in the delivered package will fail ingest. Confirm the EPG image Type value with your platform before switching it on.</p>
+  </div>
+</details>
+
+<!-- EXTRA -->
+<details class="sec" style="--seg:var(--line2)">
+  <summary><span class="chev">▶</span><span class="tab"></span><h2>Extra fields</h2>
+    <span class="hint">Anything else your platform asks for</span></summary>
+  <div class="body">
+    <div class="rows" id="extras"></div>
+    <button class="add" id="addExtra">+ Add field</button>
+    <p class="mini">Written as App_Data on the title asset, in the order listed. Example: Closed_Captioning / Y, or Audio_Type / Stereo.</p>
+  </div>
+</details>
+
+</div>
+
+<!-- RIGHT RAIL -->
+<div class="rail">
+  <div class="railbox">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-pane="pkg">Package</button>
+      <button role="tab" aria-selected="false" data-pane="xml">XML</button>
+      <button role="tab" aria-selected="false" data-pane="chk">Checks<span class="cnt" id="chkcount">0</span></button>
+      <button role="tab" aria-selected="false" data-pane="bat">Batch</button>
+    </div>
+
+    <div class="pane on" id="pane-pkg"><div class="tree" id="tree"></div></div>
+    <div class="pane" id="pane-xml"><pre class="xml" id="xml"></pre></div>
+    <div class="pane" id="pane-chk"><div class="checks" id="checks"></div></div>
+    <div class="pane batch" id="pane-bat">
+      <div style="padding:15px">
+        <p class="mini" style="margin:0 0 11px">Paste one row per episode. Every column not listed here is inherited from the form. Each row downloads as its own XML file.</p>
+        <textarea id="csv" spellcheck="false"></textarea>
+        <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+          <button class="btn gh" id="csvTpl">Load example rows</button>
+          <button class="btn" id="csvCheck">Check rows</button>
+          <button class="btn pri" id="csvRun">Build all</button>
+        </div>
+        <div id="csvOut" class="mini" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <div class="acts">
+      <button class="btn pri" id="dl">Download XML</button>
+      <button class="btn" id="copy">Copy</button>
+      <button class="btn" id="save">Save JSON</button>
+      <button class="btn" id="load">Load JSON</button>
+      <button class="btn gh" id="next">Next episode</button>
+      <button class="btn gh" id="reset">Reset</button>
+    </div>
+  </div>
+</div>
+</main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+
+<script>
+"use strict";
+
+/* ============================ state ============================ */
+const SEED = {
+  provider:"SumanTV", providerId:"sumantv0101", product:"TVOD",
+  specVersion:"CableLabsVOD1.1", creationDate:"2026-07-01",
+  verb:"", versionMajor:"1", versionMinor:"0",
+  prefix:"A_Sudhakar_S1_E1", assetIdBase:"CIST2026070909453201",
+  seriesTitleEng:"Why Society Needs Doctors Like Him",
+  seriesTitleTel:"ఇలాంటి డాక్టర్లే సమాజానికి అవసరం",
+  episodeNameEng:"The Inspiring Journey of Dr. Appala Sudhakar",
+  episodeNameTel:"", seasonId:"1", episodeId:"1",
+  summaryShort:"",
+  summaryMedium:"Anchor Swapna talks with laparoscopic surgeon Dr. Appala Sudhakar from Vasavi Hospital about his career path and his views on the kind of medical care society needs.",
+  summaryLong:"In this emotional interview on SumanTV, anchor Swapna sits down with laparoscopic surgeon Dr. Appala Sudhakar from Vasavi Hospital. He shares his professional journey, the major hurdles he overcame to get to where he is today, and his inspiring philosophy on the kind of doctors and care society truly needs.",
+  useTeluguSummary:false, summaryMediumTel:"", summaryLongTel:"",
+  runTime:"01:09:18", displayRunTime:"", ratingType:"AGE", rating:"12",
+  year:"2026", category:"Serije", suggestedPrice:"0", genre:"Health",
+  useLicensing:false, licStart:"", licEnd:"",
+  featureFile:"DR_A_Sudhakar.mp4", posterFile:"A_Sudhakar_vod_cover.png",
+  usePreview:true, previewFile:"DR_A_Sudhakar_trailer.mp4",
+  useEpg:false, epgFile:"A_Sudhakar_epg_cover.png",
+  credits:[
+    {role:"Actors", lang:"eng", value:"Sudhakar,Appala"},
+    {role:"Actors", lang:"eng", value:"Swapna"},
+    {role:"Director", lang:"eng", value:"Salendra,Sudershan"}
+  ],
+  extras:[]
+};
+const ROLES = ["Actors","Director","Producer","Writer","Presenter","Host","Guest","Chapter"];
+const LANGS = [["eng","English"],["tel","Telugu"],["hin","Hindi"],["tam","Tamil"],["kan","Kannada"],["","none"]];
+
+let S = JSON.parse(JSON.stringify(SEED));
+
+/* ============================ helpers ============================ */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = v => String(v==null?"":v)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;").replace(/\r?\n/g," ").trim();
+
+function bumpId(base, n){
+  const m = String(base||"").match(/^(.*?)(\d+)$/);
+  if(!m) return String(base||"") + (n?("-"+n):"");
+  const next = (BigInt(m[2]) + BigInt(n)).toString().padStart(m[2].length,"0");
+  return m[1] + next;
+}
+function autoDisplay(rt){
+  const m = String(rt||"").match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
+  return m ? m[1].padStart(2,"0")+":"+m[2] : "";
+}
+function toast(msg, bad){
+  const t=$("#toast"); t.textContent=msg; t.classList.toggle("bad",!!bad); t.classList.add("on");
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2200);
+}
+function download(name, text, mime){
+  const b=new Blob([text],{type:(mime||"application/xml")+";charset=utf-8"});
+  const u=URL.createObjectURL(b), a=document.createElement("a");
+  a.href=u; a.download=name; document.body.appendChild(a); a.click();
+  a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1500);
+}
+
+/* ============================ asset plan ============================ */
+function plan(d){
+  const p = d.prefix || "asset";
+  const series = d.seriesTitleEng || "Untitled";
+  const ep = "S"+(d.seasonId||"?")+" E"+(d.episodeId||"?");
+  const list = [
+    {cls:"package", type:null,           name:p,              desc:series+" - "+ep+" package"},
+    {cls:"title",   type:"Title",        name:p+"_metadata",  desc:series+" - "+ep+" title"},
+    {cls:"movie",   type:"movie",        name:p+"_feature",   desc:series+" - "+ep+" feature", file:d.featureFile},
+    {cls:"poster",  type:"show_poster",  name:p+"_poster",    desc:series+" - show poster",    file:d.posterFile}
+  ];
+  if(d.usePreview) list.push({cls:"preview", type:"preview", name:p+"_preview",
+    desc:series+" - "+ep+" preview", file:d.previewFile});
+  if(d.useEpg) list.push({cls:"poster", type:"episode_poster", name:p+"_epg_poster",
+    desc:series+" - EPG image", file:d.epgFile});
+  list.forEach((a,i)=> a.id = bumpId(d.assetIdBase, i));
+  return list;
+}
+
+/* ============================ xml ============================ */
+function buildXML(d){
+  const A = plan(d);
+  const app = d.product || "TVOD";
+  const ams = a =>
+    '<AMS Asset_Class="'+esc(a.cls)+'" Product="'+esc(d.product)+'" Asset_Name="'+esc(a.name)+
+    '" Description="'+esc(a.desc)+'" Provider="'+esc(d.provider)+'" Provider_ID="'+esc(d.providerId)+
+    '" Asset_ID="'+esc(a.id)+'" Creation_Date="'+esc(d.creationDate)+'" Version_Major="'+
+    esc(d.versionMajor||"1")+'" Version_Minor="'+esc(d.versionMinor||"0")+'" Verb="'+esc(d.verb)+'" />';
+  const ad = (name, value, o) => {
+    o = o || {};
+    if(value===undefined || value===null || String(value).trim()==="") return null;
+    return '<App_Data App="'+esc(app)+'" Name="'+esc(name)+'"'+
+      (o.lang ? ' Language="'+esc(o.lang)+'"' : "")+
+      (o.id   ? ' Id="'+esc(o.id)+'"' : "")+
+      ' Value="'+esc(value)+'" />';
+  };
+
+  const T = [];
+  T.push(ad("Type","Title"));
+  T.push(ad("Title", d.seriesTitleEng));
+  T.push(ad("Title", d.seriesTitleEng, {lang:"eng"}));
+  T.push(ad("Title", d.seriesTitleTel, {lang:"tel"}));
+  T.push(ad("Episode_Name", d.episodeNameEng, {lang:"eng"}));
+  T.push(ad("Episode_Name", d.episodeNameTel, {lang:"tel"}));
+  T.push(ad("Season_ID", d.seasonId));
+  T.push(ad("Episode_ID", d.episodeId));
+  T.push(ad("Summary_Short", d.summaryShort, {lang:"eng"}));
+  T.push(ad("Summary_Medium", d.summaryMedium, {lang:"eng"}));
+  T.push(ad("Summary_Long", d.summaryLong, {lang:"eng"}));
+  if(d.useTeluguSummary){
+    T.push(ad("Summary_Medium", d.summaryMediumTel, {lang:"tel"}));
+    T.push(ad("Summary_Long", d.summaryLongTel, {lang:"tel"}));
+  }
+  const seen = {};
+  (d.credits||[]).forEach(c=>{
+    if(!c.value || !c.value.trim()) return;
+    seen[c.role] = (seen[c.role]||0)+1;
+    T.push(ad(c.role, c.value, {lang:c.lang, id:String(seen[c.role])}));
+  });
+  T.push(ad("Rating_Type", d.ratingType));
+  T.push(ad("Rating", d.rating));
+  T.push(ad("Run_Time", d.runTime));
+  T.push(ad("Display_Run_Time", d.displayRunTime || autoDisplay(d.runTime)));
+  T.push(ad("Year", d.year));
+  String(d.genre||"").split(",").map(g=>g.trim()).filter(Boolean)
+    .forEach(g => T.push(ad("Genre", g)));
+  T.push(ad("Category", d.category));
+  if(d.useLicensing){
+    T.push(ad("Licensing_Window_Start", d.licStart));
+    T.push(ad("Licensing_Window_End", d.licEnd));
+  }
+  T.push(ad("Suggested_Price", d.suggestedPrice));
+  (d.extras||[]).forEach(x=>{
+    if(!x.name || !x.name.trim()) return;
+    T.push(ad(x.name.trim(), x.value, {lang:x.lang}));
+  });
+
+  const I2="    ", I3="      ", I4="        ";
+  const L = [];
+  L.push('<?xml version="1.0" encoding="UTF-8"?>');
+  L.push('<!-- ADI 1.1 / CableLabs VOD 1.1 | '+esc(d.provider)+' | Season '+
+         esc(d.seasonId)+' Episode '+esc(d.episodeId)+' -->');
+  L.push('<ADI>');
+  L.push('  <Metadata>');
+  L.push(I2+ams(A[0]));
+  L.push(I2+'<App_Data App="'+esc(app)+'" Name="Metadata_Spec_Version" Value="'+esc(d.specVersion)+'" />');
+  L.push('  </Metadata>');
+  L.push('  <Asset>');
+  L.push(I2+'<Metadata>');
+  L.push(I3+ams(A[1]));
+  T.filter(Boolean).forEach(x => L.push(I3+x));
+  L.push(I2+'</Metadata>');
+  A.slice(2).forEach(a=>{
+    L.push(I2+'<Asset>');
+    L.push(I3+'<Metadata>');
+    L.push(I4+ams(a));
+    L.push(I4+'<App_Data App="'+esc(app)+'" Name="Type" Value="'+esc(a.type)+'" />');
+    L.push(I3+'</Metadata>');
+    L.push(I3+'<Content Value="'+esc(a.file)+'" />');
+    L.push(I2+'</Asset>');
+  });
+  L.push('  </Asset>');
+  L.push('</ADI>');
+  return L.join("\n")+"\n";
+}
+
+/* ============================ validation ============================ */
+const REQ = {
+  provider:"Provider", providerId:"Provider ID", product:"Product",
+  creationDate:"Creation date", prefix:"Asset name prefix", assetIdBase:"First asset ID",
+  seriesTitleEng:"Series title", episodeNameEng:"Episode name",
+  seasonId:"Season number", episodeId:"Episode number",
+  summaryMedium:"Medium synopsis", runTime:"Run time", year:"Year",
+  category:"Category", featureFile:"Feature video", posterFile:"Show poster"
+};
+function validate(d){
+  const out=[];
+  Object.keys(REQ).forEach(k=>{
+    if(!String(d[k]||"").trim()) out.push({lvl:"err",k:k,t:REQ[k],m:"Required — ingest rejects the package without it."});
+  });
+  if(d.prefix && !/^[A-Za-z0-9_]+$/.test(d.prefix))
+    out.push({lvl:"err",k:"prefix",t:"Asset name prefix",m:"Use letters, digits and underscores only."});
+  if(d.runTime && !/^\d{1,2}:\d{2}:\d{2}$/.test(d.runTime))
+    out.push({lvl:"err",k:"runTime",t:"Run time",m:"Format is hh:mm:ss, for example 01:09:18."});
+  if(d.displayRunTime && !/^\d{1,2}:\d{2}$/.test(d.displayRunTime))
+    out.push({lvl:"err",k:"displayRunTime",t:"Display run time",m:"Format is hh:mm."});
+  if(d.creationDate && !/^\d{4}-\d{2}-\d{2}$/.test(d.creationDate))
+    out.push({lvl:"err",k:"creationDate",t:"Creation date",m:"Format is YYYY-MM-DD."});
+  if(d.rating && !d.ratingType)
+    out.push({lvl:"err",k:"ratingType",t:"Rating type",m:"Mandatory whenever a rating is set."});
+  if(d.assetIdBase && !/\d$/.test(d.assetIdBase))
+    out.push({lvl:"warn",k:"assetIdBase",t:"First asset ID",m:"Ends without a number, so IDs cannot increment cleanly."});
+  [["featureFile","Feature video"],["posterFile","Show poster"],
+   ["previewFile","Trailer"],["epgFile","EPG image"]].forEach(([k,t])=>{
+    const v=d[k]; if(v && !/\.[A-Za-z0-9]{2,4}$/.test(v))
+      out.push({lvl:"warn",k:k,t:t,m:"No file extension — check this matches the delivered file."});
+  });
+  if(d.usePreview && !String(d.previewFile||"").trim())
+    out.push({lvl:"err",k:"previewFile",t:"Trailer video",m:"Trailer is switched on but no filename is set."});
+  if(d.useEpg && !String(d.epgFile||"").trim())
+    out.push({lvl:"err",k:"epgFile",t:"EPG image",m:"EPG image is switched on but no filename is set."});
+  if(d.useEpg)
+    out.push({lvl:"warn",k:"epgFile",t:"EPG image",m:"Confirm episode_poster is the Type your platform expects."});
+  if(d.useLicensing && (!d.licStart || !d.licEnd))
+    out.push({lvl:"warn",k:"licStart",t:"Licensing window",m:"Both start and end are normally required together."});
+  if(d.seriesTitleEng && d.episodeNameEng && d.seriesTitleEng.trim()===d.episodeNameEng.trim())
+    out.push({lvl:"warn",k:"episodeNameEng",t:"Episode name",m:"Same as the series title. Title carries the series, Episode_Name the episode."});
+  if(!(d.credits||[]).some(c=>c.value && c.value.trim()))
+    out.push({lvl:"warn",k:"",t:"Credits",m:"No credits listed. Most catalogues expect at least a presenter or guest."});
+  return out;
+}
+
+/* ============================ render ============================ */
+const SECTIONS = [
+  {n:"Delivery",  seg:"--b1", keys:["provider","providerId","product","creationDate"]},
+  {n:"Identity",  seg:"--b2", keys:["prefix","assetIdBase"]},
+  {n:"Series",    seg:"--b3", keys:["seriesTitleEng","episodeNameEng","seasonId","episodeId"]},
+  {n:"Synopsis",  seg:"--b4", keys:["summaryMedium"]},
+  {n:"Credits",   seg:"--b5", keys:["__credits"]},
+  {n:"Class",     seg:"--b6", keys:["runTime","year","category"]},
+  {n:"Media",     seg:"--b7", keys:["featureFile","posterFile"]}
+];
+function renderBars(){
+  const el=$("#bars");
+  if(!el.children.length){
+    SECTIONS.forEach(s=>{
+      const d=document.createElement("div");
+      d.className="bar"; d.style.setProperty("--seg","var("+s.seg+")");
+      d.innerHTML='<span>'+s.n+'</span>'; el.appendChild(d);
+    });
+  }
+  SECTIONS.forEach((s,i)=>{
+    const done = s.keys.every(k => k==="__credits"
+      ? (S.credits||[]).some(c=>c.value&&c.value.trim())
+      : String(S[k]||"").trim()!=="");
+    el.children[i].classList.toggle("on", done);
+  });
+}
+function renderSlate(){
+  $("#sl-name").textContent = S.prefix || "—";
+  $("#sl-id").textContent   = S.assetIdBase || "—";
+  $("#sl-rt").textContent   = S.runTime ? (S.runTime+" / "+(S.displayRunTime||autoDisplay(S.runTime)||"—")) : "—";
+}
+function renderTree(){
+  const A=plan(S), C={package:"--b1",title:"--b2",movie:"--b7",poster:"--b3",preview:"--b5"};
+  let h='<div class="node">';
+  A.forEach((a,i)=>{
+    if(i===2) h+='<div class="node">';
+    h+='<div class="nd" style="--seg:var('+(C[a.cls]||"--dim")+')">'+
+       '<div class="k">'+a.cls+(a.type?" · "+a.type:"")+'</div>'+
+       '<div class="n">'+esc(a.name)+'</div>'+
+       '<div class="m"><b>ID</b> '+esc(a.id)+(a.file?' &nbsp;·&nbsp; <b>file</b> '+esc(a.file):"")+'</div></div>';
+  });
+  h+='</div></div>';
+  $("#tree").innerHTML=h;
+}
+function hlLine(line){
+  if(line.trim().startsWith("<!--")) return '<span class="c">'+esc(line)+'</span>';
+  return esc(line)
+    .replace(/(&lt;\/?)([A-Za-z_][\w.:-]*)/g,'$1<span class="t">$2</span>')
+    .replace(/([A-Za-z_][\w.:-]*)=(&quot;)([\s\S]*?)(&quot;)/g,
+             '<span class="a">$1</span>=<span class="v">$2$3$4</span>');
+}
+function renderXML(x){
+  $("#xml").innerHTML = x.replace(/\n$/,"").split("\n")
+    .map(l=>'<span class="l">'+hlLine(l)+'</span>').join("");
+}
+function renderChecks(v){
+  const errs=v.filter(x=>x.lvl==="err").length;
+  const c=$("#chkcount");
+  c.textContent = errs ? errs : (v.length ? v.length : "0");
+  c.className = "cnt"+(errs?"":" ok");
+  $("#dl").disabled = errs>0;
+  $("#dl").textContent = errs ? (errs+" to fix") : "Download XML";
+  $("#checks").innerHTML = v.length
+    ? v.map(x=>'<div class="chk '+x.lvl+'"><span class="dot"></span><span class="tx"><b>'+
+        esc(x.t)+'</b><span>'+esc(x.m)+'</span></span></div>').join("")
+    : '<div class="chk ok"><span class="dot"></span><span class="tx"><b>Ready to download</b>'+
+      '<span>Every mandatory field is filled and nothing looks off.</span></span></div>';
+  const bad = new Set(v.filter(x=>x.lvl==="err").map(x=>x.k));
+  $$("[data-k]").forEach(el=> el.classList.toggle("bad", bad.has(el.dataset.k)));
+}
+let CURRENT="";
+function render(){
+  $("#telsum").hidden = !S.useTeluguSummary;
+  $("#licwrap").hidden = !S.useLicensing;
+  $("#pvwrap").hidden = !S.usePreview;
+  $("#epgwrap").hidden = !S.useEpg;
+  CURRENT = buildXML(S);
+  renderBars(); renderSlate(); renderTree(); renderXML(CURRENT); renderChecks(validate(S));
+}
+
+/* ============================ repeaters ============================ */
+function optionList(arr, sel){
+  return arr.map(o=>{
+    const v=Array.isArray(o)?o[0]:o, t=Array.isArray(o)?o[1]:o;
+    return '<option value="'+esc(v)+'"'+(v===sel?" selected":"")+'>'+esc(t)+'</option>';
+  }).join("");
+}
+function renderCredits(){
+  $("#credits").innerHTML = (S.credits||[]).map((c,i)=>
+    '<div class="row" data-i="'+i+'">'+
+    '<select data-cf="role">'+optionList(ROLES,c.role)+'</select>'+
+    '<select data-cf="lang">'+optionList(LANGS,c.lang)+'</select>'+
+    '<input type="text" data-cf="value" value="'+esc(c.value)+'" placeholder="Lastname,Firstname">'+
+    '<button class="x" data-cx="'+i+'" aria-label="Remove credit">×</button></div>').join("");
+}
+function renderExtras(){
+  $("#extras").innerHTML = (S.extras||[]).map((x,i)=>
+    '<div class="row" data-i="'+i+'">'+
+    '<input type="text" data-xf="name" value="'+esc(x.name)+'" placeholder="Closed_Captioning">'+
+    '<select data-xf="lang">'+optionList(LANGS,x.lang)+'</select>'+
+    '<input type="text" data-xf="value" value="'+esc(x.value)+'" placeholder="Y">'+
+    '<button class="x" data-xx="'+i+'" aria-label="Remove field">×</button></div>').join("");
+}
+$("#credits").addEventListener("input", e=>{
+  const f=e.target.dataset.cf; if(!f) return;
+  S.credits[+e.target.closest(".row").dataset.i][f]=e.target.value; render();
+});
+$("#credits").addEventListener("change", e=>{
+  const f=e.target.dataset.cf; if(!f) return;
+  S.credits[+e.target.closest(".row").dataset.i][f]=e.target.value; render();
+});
+$("#credits").addEventListener("click", e=>{
+  const i=e.target.dataset.cx; if(i===undefined) return;
+  S.credits.splice(+i,1); renderCredits(); render();
+});
+$("#addCredit").addEventListener("click", ()=>{
+  S.credits.push({role:"Actors",lang:"eng",value:""}); renderCredits(); render();
+  const rows=$("#credits").querySelectorAll('[data-cf="value"]');
+  if(rows.length) rows[rows.length-1].focus();
+});
+$("#extras").addEventListener("input", e=>{
+  const f=e.target.dataset.xf; if(!f) return;
+  S.extras[+e.target.closest(".row").dataset.i][f]=e.target.value; render();
+});
+$("#extras").addEventListener("change", e=>{
+  const f=e.target.dataset.xf; if(!f) return;
+  S.extras[+e.target.closest(".row").dataset.i][f]=e.target.value; render();
+});
+$("#extras").addEventListener("click", e=>{
+  const i=e.target.dataset.xx; if(i===undefined) return;
+  S.extras.splice(+i,1); renderExtras(); render();
+});
+$("#addExtra").addEventListener("click", ()=>{
+  S.extras.push({name:"",lang:"",value:""}); renderExtras(); render();
+  const rows=$("#extras").querySelectorAll('[data-xf="name"]');
+  if(rows.length) rows[rows.length-1].focus();
+});
+
+/* ============================ binding ============================ */
+function toForm(){
+  $$("[data-k]").forEach(el=>{
+    const k=el.dataset.k;
+    if(el.type==="checkbox") el.checked=!!S[k]; else el.value=S[k]==null?"":S[k];
+  });
+  renderCredits(); renderExtras(); render();
+}
+document.addEventListener("input", e=>{
+  const k=e.target.dataset && e.target.dataset.k; if(!k) return;
+  S[k] = e.target.type==="checkbox" ? e.target.checked : e.target.value;
+  render();
+});
+document.addEventListener("change", e=>{
+  const k=e.target.dataset && e.target.dataset.k; if(!k) return;
+  S[k] = e.target.type==="checkbox" ? e.target.checked : e.target.value;
+  render();
+});
+
+/* tabs */
+$$(".tabs button").forEach(b=> b.addEventListener("click", ()=>{
+  $$(".tabs button").forEach(x=>x.setAttribute("aria-selected", x===b));
+  $$(".pane").forEach(p=>p.classList.remove("on"));
+  $("#pane-"+b.dataset.pane).classList.add("on");
+}));
+
+/* ============================ actions ============================ */
+$("#dl").addEventListener("click", ()=>{
+  if(validate(S).some(v=>v.lvl==="err")){
+    $$('.tabs button').forEach(x=>x.setAttribute("aria-selected", x.dataset.pane==="chk"));
+    $$(".pane").forEach(p=>p.classList.remove("on")); $("#pane-chk").classList.add("on");
+    return toast("Fix the errors in Checks first", true);
+  }
+  download((S.prefix||"package")+".xml", buildXML(S));
+  toast("XML downloaded");
+});
+$("#copy").addEventListener("click", async ()=>{
+  try{ await navigator.clipboard.writeText(CURRENT); toast("XML copied"); }
+  catch(err){ toast("Copy blocked by the browser — use Download", true); }
+});
+$("#save").addEventListener("click", ()=>{
+  download((S.prefix||"package")+".json", JSON.stringify(S,null,2), "application/json");
+  toast("JSON saved");
+});
+$("#load").addEventListener("click", ()=> $("#file").click());
+$("#file").addEventListener("change", e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const j=JSON.parse(r.result);
+      S=Object.assign(JSON.parse(JSON.stringify(SEED)), j);
+      S.credits=Array.isArray(j.credits)?j.credits:[];
+      S.extras=Array.isArray(j.extras)?j.extras:[];
+      toForm(); toast("JSON loaded");
+    }catch(err){ toast("That file is not valid JSON", true); }
+  };
+  r.readAsText(f); e.target.value="";
+});
+$("#next").addEventListener("click", ()=>{
+  const n=(parseInt(S.episodeId,10)||0)+1;
+  S.episodeId=String(n);
+  S.prefix=(S.prefix||"").replace(/_E\d+$/i, "_E"+n);
+  S.assetIdBase=bumpId(S.assetIdBase, 10);
+  ["episodeNameEng","episodeNameTel","summaryShort","summaryMedium","summaryLong",
+   "summaryMediumTel","summaryLongTel","runTime","displayRunTime",
+   "featureFile","posterFile","previewFile","epgFile"].forEach(k=>S[k]="");
+  toForm(); toast("Ready for episode "+n);
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+$("#reset").addEventListener("click", ()=>{
+  S=JSON.parse(JSON.stringify(SEED)); toForm(); toast("Reset to the sample episode");
+});
+
+/* ============================ batch ============================ */
+const COLS = ["prefix","assetIdBase","seasonId","episodeId","episodeNameEng",
+  "summaryMedium","summaryLong","runTime","featureFile","posterFile","previewFile"];
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else if(c==='"') q=true;
+    else if(c===","){ row.push(cur); cur=""; }
+    else if(c==="\n"){ row.push(cur); rows.push(row); row=[]; cur=""; }
+    else if(c!=="\r") cur+=c;
+  }
+  if(cur.length||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=> r.some(v=>String(v).trim()!==""));
+}
+function batchRows(){
+  const rows=parseCSV($("#csv").value);
+  if(rows.length<2) return {err:"Add a header row plus at least one episode row."};
+  const head=rows[0].map(h=>h.trim());
+  const bad=head.filter(h=>COLS.indexOf(h)<0);
+  if(bad.length) return {err:"Unknown column: "+bad.join(", ")};
+  const out=rows.slice(1).map(r=>{
+    const d=JSON.parse(JSON.stringify(S));
+    head.forEach((h,i)=> d[h]=(r[i]==null?"":r[i]).trim());
+    return d;
+  });
+  return {rows:out};
+}
+$("#csvTpl").addEventListener("click", ()=>{
+  $("#csv").value =
+"prefix,assetIdBase,seasonId,episodeId,episodeNameEng,summaryMedium,runTime,featureFile,posterFile,previewFile\n"+
+"A_Sudhakar_S1_E2,CIST2026070909453211,1,2,\"Inside a Laparoscopic Theatre\",\"Dr. Appala Sudhakar walks through a keyhole procedure and what recovery really looks like.\",00:48:12,DR_A_Sudhakar_E2.mp4,A_Sudhakar_vod_cover.png,DR_A_Sudhakar_E2_trailer.mp4\n"+
+"A_Sudhakar_S1_E3,CIST2026070909453221,1,3,\"Questions From Our Viewers\",\"Viewer questions on gallstones, hernia and post-surgery diet, answered on camera.\",00:52:40,DR_A_Sudhakar_E3.mp4,A_Sudhakar_vod_cover.png,DR_A_Sudhakar_E3_trailer.mp4\n";
+  toast("Example rows loaded");
+});
+$("#csvCheck").addEventListener("click", ()=>{
+  const r=batchRows();
+  if(r.err) return $("#csvOut").textContent = r.err;
+  const lines = r.rows.map((d,i)=>{
+    const e=validate(d).filter(v=>v.lvl==="err");
+    return (i+1)+". "+(d.prefix||"(no prefix)")+" — "+(e.length? (e.length+" error"+(e.length>1?"s":"")+": "+e.map(x=>x.t).join(", ")) : "ready");
+  });
+  $("#csvOut").innerHTML = lines.map(esc).join("<br>");
+});
+$("#csvRun").addEventListener("click", ()=>{
+  const r=batchRows();
+  if(r.err){ $("#csvOut").textContent=r.err; return toast(r.err,true); }
+  const bad=r.rows.filter(d=>validate(d).some(v=>v.lvl==="err"));
+  if(bad.length){ $("#csvCheck").click(); return toast(bad.length+" row(s) have errors",true); }
+  r.rows.forEach((d,i)=> setTimeout(()=> download((d.prefix||("package_"+(i+1)))+".xml", buildXML(d)), i*350));
+  toast("Building "+r.rows.length+" packages");
+});
+
+/* go */
+toForm();
+</script>
+</body>
+</html>
